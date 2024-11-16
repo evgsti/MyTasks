@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct TaskListView: View {
-    // Подключаем ViewModel
     @StateObject private var viewModel = TaskViewViewModel()
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -52,9 +53,14 @@ struct TaskListView: View {
                     .progressViewStyle(CircularProgressViewStyle())
             }
         }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Ошибка"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+        .onReceive(viewModel.$error) { error in
+            if let error = error {
+                alertMessage = error.localizedDescription
+                showAlert = true
+            }
+        }
     }
-}
-
-#Preview {
-    TaskListView()
 }

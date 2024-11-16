@@ -13,6 +13,7 @@ class TaskViewViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var searchText = ""
     @Published var disableStatus = false
+    @Published var error: Error? = nil  // Новое состояние для ошибки
     
     private let storageManager = StorageManager.shared
     private let networkManager = NetworkManager.shared
@@ -24,7 +25,6 @@ class TaskViewViewModel: ObservableObject {
         setupSearchBinding()
     }
     
-    // Метод для фильтрации задач по тексту поиска
     var filteredTasks: [MyTaskItems] {
         if searchText.isEmpty {
             return tasks
@@ -36,13 +36,11 @@ class TaskViewViewModel: ObservableObject {
         }
     }
     
-    // Метод для переключения состояния задачи (выполнено/не выполнено)
     func toggleTaskCompletion(task: MyTaskItems) {
         storageManager.complitionToggle(task: task)
-        fetchTasks()  // Обновляем список задач после изменения
+        fetchTasks()
     }
     
-    // Метод для загрузки задач из сети или Core Data
     private func loadTasks() {
         let hasFetchedDataBefore = UserDefaults.standard.bool(forKey: "hasFetchedDataBefore")
         
@@ -50,7 +48,6 @@ class TaskViewViewModel: ObservableObject {
             isLoading = true
             disableStatus = true
             
-            // Загрузка данных из сети
             networkManager.fetchData { [weak self] fetchedTasks, error in
                 guard let self = self else { return }
                 
@@ -59,12 +56,11 @@ class TaskViewViewModel: ObservableObject {
                 self.disableStatus = false
                 
                 if let error = error {
-                    print("Error loading data: \(error.localizedDescription)")
+                    self.error = error  // Устанавливаем ошибку
                     return
                 }
                 
                 if let fetchedTasks = fetchedTasks {
-                    // Сохраняем задачи в Core Data
                     for task in fetchedTasks {
                         self.storageManager.create(
                             id: UUID(),
@@ -72,32 +68,27 @@ class TaskViewViewModel: ObservableObject {
                             isCompleted: task.isCompleted
                         )
                     }
-                    self.fetchTasks()  // Обновляем список задач после добавления
+                    self.fetchTasks()
                 }
             }
         } else {
-            // Если данные уже были загружены, просто загружаем их из Core Data
             fetchTasks()
         }
     }
     
-    // Метод для загрузки задач из Core Data
     private func fetchTasks() {
         tasks = storageManager.tasks
     }
     
-    // Настройка связи поиска
     private func setupSearchBinding() {
-        // Подписка на изменение текста поиска
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
             .sink { [weak self] _ in
-                self?.fetchTasks() // Обновляем задачи при изменении текста поиска
+                self?.fetchTasks()
             }
             .store(in: &cancellables)
     }
     
-    // Метод для получения правильной формы слова "задача"
     func getTaskCountText(count: Int) -> String {
         let lastDigit = count % 10
         let lastTwoDigits = count % 100

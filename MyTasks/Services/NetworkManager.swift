@@ -6,16 +6,25 @@
 //
 
 import Foundation
+import SystemConfiguration
 
 final class NetworkManager {
     
     static let shared = NetworkManager()
     
-    private let api = "https://dummyjson.com/todos"
+    private let api = "https://dummyjson.com/todos1"
     
     private init() {}
     
     func fetchData(completion: @escaping ([Task]?, Error?) -> Void) {
+        guard isConnectedToNetwork() else {
+            // Интернет не доступен
+            DispatchQueue.main.async {
+                completion(nil, NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No internet connection"]))
+            }
+            return
+        }
+        
         guard let url = URL(string: api) else { return }
         
         URLSession.shared.dataTask(with: url) { data, _, error in
@@ -44,5 +53,26 @@ final class NetworkManager {
                 print("Error decoding JSON:", error)
             }
         }.resume()
+    }
+    
+    private func isConnectedToNetwork() -> Bool {
+        var zeroAddress = sockaddr_in()
+        zeroAddress.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+        zeroAddress.sin_family = sa_family_t(AF_INET)
+        
+        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                SCNetworkReachabilityCreateWithAddress(nil, $0)
+            }
+        }
+        
+        var flags: SCNetworkReachabilityFlags = []
+        if SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) {
+            if flags.contains(.reachable) && !flags.contains(.connectionRequired) {
+                return true
+            }
+        }
+        
+        return false
     }
 }
