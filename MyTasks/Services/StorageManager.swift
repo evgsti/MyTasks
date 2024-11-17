@@ -50,7 +50,7 @@ final class StorageManager: ObservableObject {
         fetchTasks()  // Обновляем список задач
     }
 
-    private func formattedDateString(from date: Date) -> String {
+    func formattedDateString(from date: Date) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd/MM/yyyy"
         return dateFormatter.string(from: date)

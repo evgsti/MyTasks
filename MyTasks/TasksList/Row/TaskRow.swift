@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TaskRow: View {
+struct TaskRowView: View {
     var task: MyTaskItems
     var action: () -> Void
     

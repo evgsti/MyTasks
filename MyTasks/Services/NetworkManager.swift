@@ -35,7 +35,14 @@ final class NetworkManager {
         isConnectedToNetwork { isAvailable in
             guard isAvailable else {
                 DispatchQueue.main.async {
-                    completion(nil, NSError(domain: "NetworkError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No internet connection"]))
+                    completion(
+                        nil,
+                        NSError(
+                            domain: "NetworkError",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Не удалось получить данные"]
+                        )
+                    )
                 }
                 return
             }

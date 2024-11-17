@@ -8,12 +8,12 @@
 import SwiftUI
 import Combine
 
-class TaskViewViewModel: ObservableObject {
+final class TaskViewViewModel: ObservableObject {
     @Published var tasks: [MyTaskItems] = []
     @Published var isLoading = false
     @Published var searchText = ""
     @Published var disableStatus = false
-    @Published var error: Error? = nil  // Новое состояние для ошибки
+    @Published var error: Error? = nil
     
     private let storageManager = StorageManager.shared
     private let networkManager = NetworkManager.shared
@@ -105,5 +105,20 @@ class TaskViewViewModel: ObservableObject {
         default:
             return "задач"
         }
+    }
+    
+    func deleteTask(_ task: MyTaskItems) {
+        storageManager.delete(task: task)
+        fetchTasks()
+    }
+    
+    func updateTask(task: MyTaskItems, newTitle: String, newDescription: String) {
+        storageManager.update(
+            task: task,
+            newTitle: newTitle,
+            newDescription: newDescription,
+            newCreatedAt: storageManager.formattedDateString(from: Date())
+        )
+        fetchTasks()
     }
 }

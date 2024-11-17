@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TaskListView: View {
     @StateObject private var viewModel = TaskViewViewModel()
+    
     @State private var showAlert = false
     @State private var alertMessage = ""
     
@@ -16,12 +17,24 @@ struct TaskListView: View {
         NavigationStack {
             List {
                 ForEach(viewModel.filteredTasks, id: \.id) { task in
-                    TaskRow(
+                    TaskRowView(
                         task: task,
                         action: {
                             viewModel.toggleTaskCompletion(task: task)
                         }
                     )
+                    .contextMenu {
+                        TaskContextMenuView(
+                            task: task,
+                            onEdit: {
+                            },
+                            onDelete: {
+                                viewModel.deleteTask(task)
+                            }
+                        )
+                    } preview: {
+                        TaskPreviewView(task: task)
+                    }
                 }
             }
             .searchable(text: $viewModel.searchText, prompt: "Поиск")
@@ -30,20 +43,7 @@ struct TaskListView: View {
             .listStyle(.plain)
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    ZStack {
-                        Text("\(viewModel.tasks.count) \(viewModel.getTaskCountText(count: viewModel.tasks.count))")
-                            .font(.subheadline)
-                        HStack {
-                            Spacer()
-                            
-                            Button(action: {
-                                print("Trailing navigation bar button pressed")
-                            }, label: {
-                                Image(systemName: "square.and.pencil")
-                                    .foregroundStyle(viewModel.disableStatus ? .primary : Color("TaskColor"))
-                            }).disabled(viewModel.disableStatus)
-                        }
-                    }
+                    TaskToolbarView()
                 }
             }
         }
@@ -63,4 +63,8 @@ struct TaskListView: View {
             }
         }
     }
+}
+
+#Preview {
+    TaskListView()
 }
