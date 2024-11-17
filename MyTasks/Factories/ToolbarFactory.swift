@@ -10,6 +10,8 @@ import SwiftUI
 struct TaskToolbarView: View {
     @ObservedObject private var viewModel = TaskViewViewModel()
     
+    let createTask: () -> Void
+    
     var body: some View {
         ZStack {
             Text("\(viewModel.tasks.count) \(viewModel.getTaskCountText(count: viewModel.tasks.count))")
@@ -17,7 +19,7 @@ struct TaskToolbarView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    print("Trailing navigation bar button pressed")
+                    createTask()
                 }, label: {
                     Image(systemName: "square.and.pencil")
                         .foregroundStyle(viewModel.disableStatus ? .primary : Color("TaskColor"))

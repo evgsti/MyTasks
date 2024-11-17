@@ -5,7 +5,7 @@
 //  Created by Евгений on 16.11.2024.
 //
 
-import SwiftUI
+import Foundation
 import Combine
 
 final class TaskViewViewModel: ObservableObject {
@@ -23,6 +23,7 @@ final class TaskViewViewModel: ObservableObject {
     init() {
         loadTasks()
         setupSearchBinding()
+        //print(tasks)
     }
     
     var filteredTasks: [MyTaskItems] {
@@ -48,7 +49,9 @@ final class TaskViewViewModel: ObservableObject {
             isLoading = true
             disableStatus = true
             
-            networkManager.fetchData { [weak self] fetchedTasks, error in
+            networkManager.fetchData {
+                [weak self] fetchedTasks,
+                error in
                 guard let self = self else { return }
                 
                 UserDefaults.standard.set(true, forKey: "hasFetchedDataBefore")
@@ -64,8 +67,10 @@ final class TaskViewViewModel: ObservableObject {
                     for task in fetchedTasks {
                         self.storageManager.create(
                             id: UUID(),
-                            description: task.description,
-                            isCompleted: task.isCompleted
+                            title: task.title,
+                            description: task.description ?? "No Description",
+                            isCompleted: task.isCompleted ?? false,
+                            createdAt: formattedDateString(from: Date())
                         )
                     }
                     self.fetchTasks()
@@ -74,6 +79,12 @@ final class TaskViewViewModel: ObservableObject {
         } else {
             fetchTasks()
         }
+    }
+    
+    private func formattedDateString(from date: Date) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        return dateFormatter.string(from: date)
     }
     
     private func fetchTasks() {
@@ -112,12 +123,23 @@ final class TaskViewViewModel: ObservableObject {
         fetchTasks()
     }
     
-    func updateTask(task: MyTaskItems, newTitle: String, newDescription: String) {
+    func createNewTask(title: String, description: String) {
+        storageManager.create(
+            id: UUID(),
+            title: title,
+            description: description,
+            isCompleted: false,
+            createdAt: formattedDateString(from: Date())
+        )
+        fetchTasks()
+    }
+    
+    func updateTask(task: MyTaskItems, title: String, description: String) {
         storageManager.update(
             task: task,
-            newTitle: newTitle,
-            newDescription: newDescription,
-            newCreatedAt: storageManager.formattedDateString(from: Date())
+            newTitle: title,
+            newDescription: description,
+            newCreatedAt: formattedDateString(from: Date())
         )
         fetchTasks()
     }

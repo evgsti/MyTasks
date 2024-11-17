@@ -49,12 +49,6 @@ final class StorageManager: ObservableObject {
         saveContext()
         fetchTasks()  // Обновляем список задач
     }
-
-    func formattedDateString(from date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yyyy"
-        return dateFormatter.string(from: date)
-    }
     
     // Сохранение изменений в Core Data
     private func saveContext() {
@@ -70,13 +64,13 @@ final class StorageManager: ObservableObject {
     
     // MARK: - CRUD
     // Сохранение задачи в Core Data
-    func create(id: UUID, description: String, isCompleted: Bool) {
+    func create(id: UUID, title: String, description: String, isCompleted: Bool, createdAt: String) {
         let taskEntity = MyTaskItems(context: viewContext)
         taskEntity.id = id
-        taskEntity.title = "No title"
+        taskEntity.title = title
         taskEntity.descriptionText = description
         taskEntity.isCompleted = isCompleted
-        taskEntity.createdAt = formattedDateString(from: Date())
+        taskEntity.createdAt = createdAt
         
         saveContext()
         fetchTasks()  // Обновляем список задач

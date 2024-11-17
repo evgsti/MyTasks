@@ -10,15 +10,15 @@ import Foundation
 // Модель для задачи, которая будет использоваться в Core Data
 struct Task: Identifiable, Codable {
     var id: UUID  // Используем UUID для уникальной идентификации
-    var title: String  // Заголовок задачи (оставим пустым, если в JSON нет)
-    var description: String  // Описание задачи (из JSON)
-    var isCompleted: Bool  // Статус выполнения (из JSON)
+    var title: String // Заголовок задачи (оставим пустым, если в JSON нет)
+    var description: String?  // Описание задачи (из JSON)
+    var isCompleted: Bool?  // Статус выполнения (из JSON)
     var createdAt: Date  // Дата создания задачи (сейчас)
 
     // Инициализатор, где мы по умолчанию заполняем пустое название и текущую дату
     init(description: String, isCompleted: Bool) {
         self.id = UUID()  // Генерация уникального UUID для каждой задачи
-        self.title = ""  // В JSON нет поля "title", заполняем пустым значением
+        self.title = "No Title" // В JSON нет поля "title", заполняем пустым значением
         self.description = description
         self.isCompleted = isCompleted
         self.createdAt = Date()  // Время создания задачи

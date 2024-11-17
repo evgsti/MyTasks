@@ -26,7 +26,6 @@ final class NetworkManager {
             // Передаем результат в замыкание
             completion(path.status == .satisfied)
         }
-        
         monitor.start(queue: queue)
     }
     
@@ -70,7 +69,12 @@ final class NetworkManager {
                     }
                 } catch let error {
                     DispatchQueue.main.async {
-                        completion(nil, error)
+                        let customError = NSError(
+                            domain: "NetworkError",
+                            code: -2,
+                            userInfo: [NSLocalizedDescriptionKey: "Не удалось обработать данные"]
+                        )
+                        completion(nil, customError)
                     }
                     print("Error decoding JSON:", error)
                 }

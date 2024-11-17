@@ -10,8 +10,15 @@ import SwiftUI
 struct TaskListView: View {
     @StateObject private var viewModel = TaskViewViewModel()
     
-    @State private var showAlert = false
-    @State private var alertMessage = ""
+    @State private var presentCreateAlert = false
+    @State private var presentUpdateAlert = false
+    
+    @State private var newTaskTitle = ""
+    @State private var newTaskDescription = ""
+    
+    @State private var selectedTask: MyTaskItems?
+    @State private var updateTaskTitle = ""
+    @State private var updateTaskDescription = ""
     
     var body: some View {
         NavigationStack {
@@ -27,6 +34,11 @@ struct TaskListView: View {
                         TaskContextMenuView(
                             task: task,
                             onEdit: {
+                                selectedTask = task
+                                updateTaskTitle = task.title ?? ""
+                                updateTaskDescription = task.descriptionText ?? ""
+                                presentUpdateAlert.toggle()
+                                print(task.id!)
                             },
                             onDelete: {
                                 viewModel.deleteTask(task)
@@ -43,28 +55,56 @@ struct TaskListView: View {
             .listStyle(.plain)
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
-                    TaskToolbarView()
+                    TaskToolbarView(createTask: {
+                        presentCreateAlert.toggle()
+                    })
+                }
+            }
+            .alert("Добавить задачу", isPresented: $presentCreateAlert) {
+                TextField("Название", text: $newTaskTitle)
+                TextField("Описание", text: $newTaskDescription)
+                
+                Button("Сохранить") {
+                    let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
+                    let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
+                    
+                    viewModel.createNewTask(
+                        title: title,
+                        description: description
+                    )
+                    newTaskTitle.removeAll()
+                    newTaskDescription.removeAll()
+                }
+                .disabled(newTaskTitle.isEmpty && newTaskDescription.isEmpty)
+                
+                Button("Отмена", role: .cancel) {
+                    newTaskTitle.removeAll()
+                    newTaskDescription.removeAll()
+                }
+            }
+            .alert("Редактировать задачу", isPresented: $presentUpdateAlert) {
+                TextField("Название", text: $updateTaskTitle)
+                TextField("Описание", text: $updateTaskDescription)
+                
+                Button("Сохранить") {
+                    if let task = selectedTask {
+                        let title = updateTaskTitle.isEmpty ? "Без названия" : updateTaskTitle
+                        let description = updateTaskDescription.isEmpty ? "Без описания" : updateTaskDescription
+                        
+                        viewModel.updateTask(
+                            task: task,
+                            title: title,
+                            description: description
+                        )
+                    }
+                }
+                .disabled(updateTaskTitle.isEmpty && updateTaskDescription.isEmpty)
+                
+                Button("Отмена", role: .cancel) {
+                    newTaskTitle.removeAll()
+                    newTaskDescription.removeAll()
                 }
             }
         }
-        .overlay {
-            if viewModel.isLoading {
-                ProgressView("Загрузка...")
-                    .progressViewStyle(CircularProgressViewStyle())
-            }
-        }
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Ошибка"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
-        .onReceive(viewModel.$error) { error in
-            if let error = error {
-                alertMessage = error.localizedDescription
-                showAlert = true
-            }
-        }
     }
-}
-
-#Preview {
-    TaskListView()
 }
