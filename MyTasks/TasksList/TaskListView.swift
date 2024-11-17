@@ -10,7 +10,6 @@ import SwiftUI
 struct TaskListView: View {
     @StateObject private var viewModel = TaskViewViewModel()
     
-    @State private var presentCreateAlert = false
     @State private var presentUpdateAlert = false
     
     @State private var newTaskTitle = ""
@@ -21,41 +20,51 @@ struct TaskListView: View {
     @State private var updateTaskDescription = ""
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             List {
                 ForEach(viewModel.filteredTasks, id: \.id) { task in
-                    TaskRowView(
-                        task: task,
-                        action: {
-                            viewModel.toggleTaskCompletion(task: task)
-                        }
-                    )
-                    .contextMenu {
-                        TaskContextMenuView(
+                    NavigationLink(destination: TaskListDetailsView(task: task)) {
+                        TaskRowView(
                             task: task,
-                            onEdit: {
-                                selectedTask = task
-                                updateTaskTitle = task.title ?? ""
-                                updateTaskDescription = task.descriptionText ?? ""
-                                presentUpdateAlert.toggle()
-                                print(task.id!)
-                            },
-                            onDelete: {
-                                withAnimation {
-                                    viewModel.deleteTask(task)
-                                }
+                            action: {
+                                viewModel.toggleTaskCompletion(task: task)
                             }
                         )
-                    } preview: {
-                        TaskPreviewView(task: task)
+                        .contextMenu {
+                            TaskContextMenuView(
+                                task: task,
+                                editTask: {
+                                    selectedTask = task
+                                    updateTaskTitle = task.title ?? ""
+                                    updateTaskDescription = task.descriptionText ?? ""
+                                    presentUpdateAlert.toggle()
+                                    print(task.id!)
+                                },
+                                shareTask: {
+                                },
+                                deleteTask: {
+                                    withAnimation {
+                                        viewModel.deleteTask(task)
+                                    }
+                                }
+                            )
+                        } preview: {
+                            TaskPreviewView(task: task)
+                        }
+                    }
+                }
+                .onDelete { indexSet in
+                    // Удаление задачи по индексу
+                    if let index = indexSet.first {
+                        let taskToDelete = viewModel.filteredTasks[index]
+                        withAnimation {
+                            viewModel.deleteTask(taskToDelete)
+                        }
                     }
                 }
             }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView("Загрузка...")
-                        .progressViewStyle(CircularProgressViewStyle())
-                }
+            .onAppear {
+                viewModel.fetchTasks()
             }
             .searchable(text: $viewModel.searchText, prompt: "Поиск")
             .disabled(viewModel.disableStatus)
@@ -64,29 +73,13 @@ struct TaskListView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
                     TaskToolbarView(createTask: {
-                        presentCreateAlert.toggle()
                     })
                 }
             }
-            .alert("Добавить задачу", isPresented: $presentCreateAlert) {
-                TextField("Название", text: $newTaskTitle)
-                TextField("Описание", text: $newTaskDescription)
-                
-                Button("Сохранить") {
-                    let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
-                    let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
-                    viewModel.createNewTask(
-                        title: title,
-                        description: description
-                    )
-                    newTaskTitle.removeAll()
-                    newTaskDescription.removeAll()
-                }
-                .disabled(newTaskTitle.isEmpty && newTaskDescription.isEmpty)
-                
-                Button("Отмена", role: .cancel) {
-                    newTaskTitle.removeAll()
-                    newTaskDescription.removeAll()
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView("Загрузка...")
+                        .progressViewStyle(CircularProgressViewStyle())
                 }
             }
             .alert("Редактировать задачу", isPresented: $presentUpdateAlert) {
@@ -114,5 +107,6 @@ struct TaskListView: View {
                 }
             }
         }
+        .tint(Color("TintColor"))
     }
 }

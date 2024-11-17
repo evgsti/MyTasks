@@ -8,19 +8,25 @@
 import SwiftUI
 
 struct TaskContextMenuView: View {
-    @ObservedObject var task: MyTaskItems
+    let task: MyTaskItems
     
-    let onEdit: () -> Void
-    let onDelete: () -> Void
+    let editTask: () -> Void
+    let shareTask: () -> Void
+    let deleteTask: () -> Void
     
     var body: some View {
         Button {
-            onEdit()
+            editTask()
         } label: {
             Label("Изменить", systemImage: "square.and.pencil")
         }
+        Button {
+            shareTask()
+        } label: {
+            Label("Поделиться", systemImage: "square.and.arrow.up")
+        }
         Button(role: .destructive) {
-            onDelete()
+            deleteTask()
         } label: {
             Label("Удалить", systemImage: "trash")
         }

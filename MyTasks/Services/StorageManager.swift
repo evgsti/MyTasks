@@ -44,26 +44,6 @@ final class StorageManager: ObservableObject {
             tasks = []
         }
     }
-    
-    // Изменение статуса выполнения задачи
-    func complitionToggle(task: MyTaskItems) {
-        task.isCompleted.toggle()
-        saveContext()
-        fetchTasks()  // Обновляем список задач
-    }
-    
-    // Сохранение изменений в Core Data
-    private func saveContext() {
-        if viewContext.hasChanges {
-            do {
-                try viewContext.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
-    }
-    
     // MARK: - CRUD
     // Сохранение задачи в Core Data
     func create(id: UUID, title: String, description: String, isCompleted: Bool, createdAt: Date) {
@@ -83,6 +63,7 @@ final class StorageManager: ObservableObject {
         task.title = newTitle
         task.descriptionText = newDescription
         task.createdAt = newCreatedAt
+        
         saveContext()
         fetchTasks()  // Обновляем список задач
     }
@@ -90,7 +71,28 @@ final class StorageManager: ObservableObject {
     // Удаление задачи
     func delete(task: MyTaskItems) {
         viewContext.delete(task)
+        
         saveContext()
         fetchTasks()  // Обновляем список задач
+    }
+    
+    // Изменение статуса выполнения задачи
+    func complitionToggle(task: MyTaskItems) {
+        task.isCompleted.toggle()
+        
+        saveContext()
+        fetchTasks()  // Обновляем список задач
+    }
+    
+    // Сохранение изменений в Core Data
+    private func saveContext() {
+        if viewContext.hasChanges {
+            do {
+                try viewContext.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
     }
 }

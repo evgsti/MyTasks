@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskRowView: View {
-    @StateObject private var viewModel = TaskRowViewModel()
+    private let viewModel = TaskRowViewModel()
     
     var task: MyTaskItems
     var action: () -> Void
@@ -20,20 +20,22 @@ struct TaskRowView: View {
             }, label: {
                 Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
                     .imageScale(.large)
-                    .foregroundStyle(task.isCompleted ? Color("TaskColor") : .gray)
+                    .foregroundStyle(task.isCompleted ? Color("TintColor") : .secondary)
             })
             .buttonStyle(.plain)
             
             VStack(alignment: .leading) {
                 Text(task.title ?? "No Title")
                     .font(.headline)
+                    .lineLimit(2)
                     .strikethrough(task.isCompleted)
                 Text(task.descriptionText ?? "No description")
                     .font(.subheadline)
+                    .lineLimit(2)
                 Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
                     .font(.subheadline)
             }
-            .foregroundStyle(task.isCompleted ? .gray : .primary)
+            .foregroundStyle(task.isCompleted ? .secondary : .primary)
         }
     }
 }

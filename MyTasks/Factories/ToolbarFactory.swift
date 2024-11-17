@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskToolbarView: View {
-    @ObservedObject private var viewModel = TaskViewViewModel()
+    private let viewModel = TaskViewViewModel()
     
     let createTask: () -> Void
     
@@ -18,12 +18,11 @@ struct TaskToolbarView: View {
                 .font(.subheadline)
             HStack {
                 Spacer()
-                Button(action: {
-                    createTask()
-                }, label: {
+                NavigationLink(destination: TaskCreateView(viewModel: viewModel)) {
                     Image(systemName: "square.and.pencil")
-                        .foregroundStyle(viewModel.disableStatus ? .primary : Color("TaskColor"))
-                }).disabled(viewModel.disableStatus)
+                }
+                .foregroundStyle(viewModel.disableStatus ? .primary : Color("TintColor"))
+                .disabled(viewModel.disableStatus)
             }
         }
     }

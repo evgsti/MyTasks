@@ -81,16 +81,6 @@ final class TaskViewViewModel: ObservableObject {
         }
     }
     
-    private func formattedDateString(from date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yyyy"
-        return dateFormatter.string(from: date)
-    }
-    
-    private func fetchTasks() {
-        tasks = storageManager.tasks
-    }
-    
     private func setupSearchBinding() {
         $searchText
             .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
@@ -118,11 +108,6 @@ final class TaskViewViewModel: ObservableObject {
         }
     }
     
-    func deleteTask(_ task: MyTaskItems) {
-        storageManager.delete(task: task)
-        fetchTasks()
-    }
-    
     func createNewTask(title: String, description: String) {
         storageManager.create(
             id: UUID(),
@@ -142,5 +127,14 @@ final class TaskViewViewModel: ObservableObject {
             newCreatedAt: Date()
         )
         fetchTasks()
+    }
+    
+    func deleteTask(_ task: MyTaskItems) {
+        storageManager.delete(task: task)
+        fetchTasks()
+    }
+    
+    func fetchTasks() {
+        tasks = storageManager.tasks
     }
 }
