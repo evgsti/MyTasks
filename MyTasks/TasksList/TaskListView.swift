@@ -41,12 +41,20 @@ struct TaskListView: View {
                                 print(task.id!)
                             },
                             onDelete: {
-                                viewModel.deleteTask(task)
+                                withAnimation {
+                                    viewModel.deleteTask(task)
+                                }
                             }
                         )
                     } preview: {
                         TaskPreviewView(task: task)
                     }
+                }
+            }
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView("Загрузка...")
+                        .progressViewStyle(CircularProgressViewStyle())
                 }
             }
             .searchable(text: $viewModel.searchText, prompt: "Поиск")
@@ -67,7 +75,6 @@ struct TaskListView: View {
                 Button("Сохранить") {
                     let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
                     let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
-                    
                     viewModel.createNewTask(
                         title: title,
                         description: description
@@ -90,12 +97,13 @@ struct TaskListView: View {
                     if let task = selectedTask {
                         let title = updateTaskTitle.isEmpty ? "Без названия" : updateTaskTitle
                         let description = updateTaskDescription.isEmpty ? "Без описания" : updateTaskDescription
-                        
-                        viewModel.updateTask(
-                            task: task,
-                            title: title,
-                            description: description
-                        )
+                        withAnimation {
+                            viewModel.updateTask(
+                                task: task,
+                                title: title,
+                                description: description
+                            )
+                        }
                     }
                 }
                 .disabled(updateTaskTitle.isEmpty && updateTaskDescription.isEmpty)

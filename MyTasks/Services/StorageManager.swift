@@ -34,6 +34,8 @@ final class StorageManager: ObservableObject {
     // Загрузка всех задач из Core Data
     func fetchTasks() {
         let fetchRequest: NSFetchRequest<MyTaskItems> = MyTaskItems.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
         
         do {
             tasks = try viewContext.fetch(fetchRequest)
@@ -64,7 +66,7 @@ final class StorageManager: ObservableObject {
     
     // MARK: - CRUD
     // Сохранение задачи в Core Data
-    func create(id: UUID, title: String, description: String, isCompleted: Bool, createdAt: String) {
+    func create(id: UUID, title: String, description: String, isCompleted: Bool, createdAt: Date) {
         let taskEntity = MyTaskItems(context: viewContext)
         taskEntity.id = id
         taskEntity.title = title
@@ -75,9 +77,9 @@ final class StorageManager: ObservableObject {
         saveContext()
         fetchTasks()  // Обновляем список задач
     }
-
+    
     // Обновление задачи
-    func update(task: MyTaskItems, newTitle: String, newDescription: String, newCreatedAt: String) {
+    func update(task: MyTaskItems, newTitle: String, newDescription: String, newCreatedAt: Date) {
         task.title = newTitle
         task.descriptionText = newDescription
         task.createdAt = newCreatedAt

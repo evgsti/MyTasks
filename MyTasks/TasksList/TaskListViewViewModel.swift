@@ -70,7 +70,7 @@ final class TaskViewViewModel: ObservableObject {
                             title: task.title,
                             description: task.description ?? "No Description",
                             isCompleted: task.isCompleted ?? false,
-                            createdAt: formattedDateString(from: Date())
+                            createdAt: Date()
                         )
                     }
                     self.fetchTasks()
@@ -129,7 +129,7 @@ final class TaskViewViewModel: ObservableObject {
             title: title,
             description: description,
             isCompleted: false,
-            createdAt: formattedDateString(from: Date())
+            createdAt: Date()
         )
         fetchTasks()
     }
@@ -139,7 +139,7 @@ final class TaskViewViewModel: ObservableObject {
             task: task,
             newTitle: title,
             newDescription: description,
-            newCreatedAt: formattedDateString(from: Date())
+            newCreatedAt: Date()
         )
         fetchTasks()
     }

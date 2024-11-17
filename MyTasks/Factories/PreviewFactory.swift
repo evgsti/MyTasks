@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TaskPreviewView: View {
     @ObservedObject var task: MyTaskItems
+    @StateObject private var viewModel = TaskRowViewModel()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -17,7 +18,7 @@ struct TaskPreviewView: View {
                 .strikethrough(task.isCompleted)
             Text(task.descriptionText ?? "No description")
                 .font(.subheadline)
-            Text(task.createdAt ?? "")
+            Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
                 .font(.subheadline)
                 .foregroundStyle(.gray)
         }

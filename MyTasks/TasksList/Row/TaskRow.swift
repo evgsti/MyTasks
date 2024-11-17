@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TaskRowView: View {
+    @StateObject private var viewModel = TaskRowViewModel()
+    
     var task: MyTaskItems
     var action: () -> Void
     
@@ -28,7 +30,7 @@ struct TaskRowView: View {
                     .strikethrough(task.isCompleted)
                 Text(task.descriptionText ?? "No description")
                     .font(.subheadline)
-                Text(task.createdAt ?? "")
+                Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
                     .font(.subheadline)
             }
             .foregroundStyle(task.isCompleted ? .gray : .primary)
