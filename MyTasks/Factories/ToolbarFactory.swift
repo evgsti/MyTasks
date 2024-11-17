@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskToolbarView: View {
-    private let viewModel = TaskViewViewModel()
+    private let viewModel = TaskListViewViewModel()
     
     let createTask: () -> Void
     

@@ -5,13 +5,12 @@
 //  Created by Евгений on 17.11.2024.
 //
 
-// AddTaskView.swift
 import SwiftUI
 
 struct TaskCreateView: View {
     @Environment(\.dismiss) private var dismiss
     
-    @ObservedObject var viewModel: TaskViewViewModel
+    @ObservedObject var viewModel: TaskListViewViewModel
     
     @FocusState private var isTextFieldFocused: Bool
     
@@ -30,7 +29,7 @@ struct TaskCreateView: View {
             }
         }
         .onTapGesture {
-            isTextFieldFocused = false
+            isTextFieldFocused.toggle()
         }
         .navigationTitle("Добавить задачу")
         .navigationBarItems(trailing: Button("Готово") {

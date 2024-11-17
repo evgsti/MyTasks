@@ -8,11 +8,11 @@
 import Foundation
 import Combine
 
-final class TaskViewViewModel: ObservableObject {
+final class TaskListViewViewModel: ObservableObject {
     @Published var tasks: [MyTaskItems] = []
     @Published var isLoading = false
-    @Published var searchText = ""
     @Published var disableStatus = false
+    @Published var searchText = ""
     @Published var error: Error? = nil
     
     private let storageManager = StorageManager.shared
@@ -23,7 +23,6 @@ final class TaskViewViewModel: ObservableObject {
     init() {
         loadTasks()
         setupSearchBinding()
-        //print(tasks)
     }
     
     var filteredTasks: [MyTaskItems] {
@@ -46,8 +45,8 @@ final class TaskViewViewModel: ObservableObject {
         let hasFetchedDataBefore = UserDefaults.standard.bool(forKey: "hasFetchedDataBefore")
         
         if !hasFetchedDataBefore {
-            isLoading = true
-            disableStatus = true
+            isLoading.toggle()
+            disableStatus.toggle()
             
             networkManager.fetchData {
                 [weak self] fetchedTasks,
@@ -55,8 +54,8 @@ final class TaskViewViewModel: ObservableObject {
                 guard let self = self else { return }
                 
                 UserDefaults.standard.set(true, forKey: "hasFetchedDataBefore")
-                self.isLoading = false
-                self.disableStatus = false
+                self.isLoading.toggle()
+                self.disableStatus.toggle()
                 
                 if let error = error {
                     self.error = error  // Устанавливаем ошибку

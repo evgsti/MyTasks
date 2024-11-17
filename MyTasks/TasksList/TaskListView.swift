@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @StateObject private var viewModel = TaskViewViewModel()
-    
-    @State private var presentUpdateAlert = false
+    @StateObject private var viewModel = TaskListViewViewModel()
     
     @State private var newTaskTitle = ""
     @State private var newTaskDescription = ""
@@ -18,6 +16,7 @@ struct TaskListView: View {
     @State private var selectedTask: MyTaskItems?
     @State private var updateTaskTitle = ""
     @State private var updateTaskDescription = ""
+    @State private var openTaskUpdateView = false
     
     var body: some View {
         NavigationView {
@@ -32,13 +31,9 @@ struct TaskListView: View {
                         )
                         .contextMenu {
                             TaskContextMenuView(
-                                task: task,
                                 editTask: {
                                     selectedTask = task
-                                    updateTaskTitle = task.title ?? ""
-                                    updateTaskDescription = task.descriptionText ?? ""
-                                    presentUpdateAlert.toggle()
-                                    print(task.id!)
+                                    openTaskUpdateView.toggle()
                                 },
                                 shareTask: {
                                 },
@@ -54,7 +49,6 @@ struct TaskListView: View {
                     }
                 }
                 .onDelete { indexSet in
-                    // Удаление задачи по индексу
                     if let index = indexSet.first {
                         let taskToDelete = viewModel.filteredTasks[index]
                         withAnimation {
@@ -63,6 +57,10 @@ struct TaskListView: View {
                     }
                 }
             }
+            .sheet(item: $selectedTask, content: { task in
+                TaskEditView(viewModel: viewModel, task: task)
+                    .presentationDetents([.medium, .large])
+            })
             .onAppear {
                 viewModel.fetchTasks()
             }
@@ -80,30 +78,6 @@ struct TaskListView: View {
                 if viewModel.isLoading {
                     ProgressView("Загрузка...")
                         .progressViewStyle(CircularProgressViewStyle())
-                }
-            }
-            .alert("Редактировать задачу", isPresented: $presentUpdateAlert) {
-                TextField("Название", text: $updateTaskTitle)
-                TextField("Описание", text: $updateTaskDescription)
-                
-                Button("Сохранить") {
-                    if let task = selectedTask {
-                        let title = updateTaskTitle.isEmpty ? "Без названия" : updateTaskTitle
-                        let description = updateTaskDescription.isEmpty ? "Без описания" : updateTaskDescription
-                        withAnimation {
-                            viewModel.updateTask(
-                                task: task,
-                                title: title,
-                                description: description
-                            )
-                        }
-                    }
-                }
-                .disabled(updateTaskTitle.isEmpty && updateTaskDescription.isEmpty)
-                
-                Button("Отмена", role: .cancel) {
-                    newTaskTitle.removeAll()
-                    newTaskDescription.removeAll()
                 }
             }
         }

@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct TaskContextMenuView: View {
-    let task: MyTaskItems
     
     let editTask: () -> Void
     let shareTask: () -> Void
