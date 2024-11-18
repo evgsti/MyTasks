@@ -13,8 +13,17 @@ final class StorageManager: ObservableObject {
     
     @Published var tasks: [MyTaskItems] = []
     
-    // MARK: - Core Data stack
-    private let persistentContainer: NSPersistentContainer = {
+    init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
+        self.persistentContainer = container
+        self.viewContext = persistentContainer.viewContext
+        fetchTasks()  // Загружаем задачи при инициализации
+    }
+    
+    private let persistentContainer: NSPersistentContainer
+    private let viewContext: NSManagedObjectContext
+    
+    // Статический метод для получения стандартного контейнера
+    static func defaultPersistentContainer() -> NSPersistentContainer {
         let container = NSPersistentContainer(name: "MyTasks")
         container.loadPersistentStores { _, error in
             if let error = error as NSError? {
@@ -22,13 +31,6 @@ final class StorageManager: ObservableObject {
             }
         }
         return container
-    }()
-    
-    private let viewContext: NSManagedObjectContext
-    
-    private init() {
-        viewContext = persistentContainer.viewContext
-        fetchTasks()  // Загружаем задачи при инициализации
     }
     
     // Загрузка всех задач из Core Data

@@ -9,11 +9,11 @@ import Foundation
 
 // Модель для задачи, которая будет использоваться в Core Data
 struct Task: Identifiable, Codable {
-    var id: UUID  // Используем UUID для уникальной идентификации
-    var title: String // Заголовок задачи (оставим пустым, если в JSON нет)
-    var description: String?  // Описание задачи (из JSON)
-    var isCompleted: Bool?  // Статус выполнения (из JSON)
-    var createdAt: Date  // Дата создания задачи (сейчас)
+    let id: UUID  // Используем UUID для уникальной идентификации
+    let title: String // Заголовок задачи (оставим пустым, если в JSON нет)
+    let description: String?  // Описание задачи (из JSON)
+    let isCompleted: Bool?  // Статус выполнения (из JSON)
+    let createdAt: Date  // Дата создания задачи (сейчас)
 
     // Инициализатор, где мы по умолчанию заполняем пустое название и текущую дату
     init(description: String, isCompleted: Bool) {
