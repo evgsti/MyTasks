@@ -18,9 +18,6 @@ struct TaskToolbarView: View {
                 .font(.subheadline)
             HStack {
                 Spacer()
-//                NavigationLink(destination: TaskCreateView(viewModel: viewModel)) {
-//                    Image(systemName: "square.and.pencil")
-//                }
                 Button(action: createTask) {
                     Image(systemName: "square.and.pencil")
                 }
