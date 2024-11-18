@@ -10,13 +10,10 @@ import SwiftUI
 struct TaskListView: View {
     @StateObject private var viewModel = TaskListViewViewModel()
     
-    @State private var newTaskTitle = ""
-    @State private var newTaskDescription = ""
-    
     @State private var selectedTask: MyTaskItems?
-    @State private var updateTaskTitle = ""
-    @State private var updateTaskDescription = ""
-    @State private var openTaskUpdateView = false
+    @State private var showCreateTaskView = false
+    @State private var showTaskUpdateView = false
+    @State private var showAlert = false
     
     var body: some View {
         NavigationView {
@@ -33,9 +30,10 @@ struct TaskListView: View {
                             TaskContextMenuView(
                                 editTask: {
                                     selectedTask = task
-                                    openTaskUpdateView.toggle()
+                                    showTaskUpdateView.toggle()
                                 },
                                 shareTask: {
+                                    // Логика для шаринга задачи
                                 },
                                 deleteTask: {
                                     withAnimation {
@@ -57,10 +55,14 @@ struct TaskListView: View {
                     }
                 }
             }
-            .sheet(item: $selectedTask, content: { task in
-                TaskEditView(viewModel: viewModel, task: task)
+            .sheet(item: $selectedTask) { task in
+                TaskUpdateView(viewModel: viewModel, task: $selectedTask)
                     .presentationDetents([.medium, .large])
-            })
+            }
+            .sheet(isPresented: $showCreateTaskView) {
+                TaskCreateView(viewModel: viewModel)
+                    .presentationDetents([.medium, .large])
+            }
             .onAppear {
                 viewModel.fetchTasks()
             }
@@ -71,6 +73,7 @@ struct TaskListView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .bottomBar) {
                     TaskToolbarView(createTask: {
+                        showCreateTaskView.toggle()
                     })
                 }
             }
@@ -78,6 +81,18 @@ struct TaskListView: View {
                 if viewModel.isLoading {
                     ProgressView("Загрузка...")
                         .progressViewStyle(CircularProgressViewStyle())
+                }
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Ошибка"),
+                    message: Text(viewModel.errorMessage ?? "Произошла неизвестная ошибка"),
+                    dismissButton: .default(Text("ОК"))
+                )
+            }
+            .onReceive(viewModel.$errorMessage) { error in
+                if error != nil {
+                    showAlert = true
                 }
             }
         }

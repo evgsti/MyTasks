@@ -1,5 +1,5 @@
 //
-//  TaskListDetails.swift
+//  TaskListDetailsView.swift
 //  MyTasks
 //
 //  Created by Евгений on 17.11.2024.

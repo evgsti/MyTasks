@@ -39,7 +39,7 @@ final class NetworkManager {
                         NSError(
                             domain: "NetworkError",
                             code: -1,
-                            userInfo: [NSLocalizedDescriptionKey: "Не удалось получить данные"]
+                            userInfo: [NSLocalizedDescriptionKey: "Не удалось получить данные. Проверьте интернет подключение"]
                         )
                     )
                 }

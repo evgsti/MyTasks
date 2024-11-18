@@ -13,7 +13,7 @@ final class TaskListViewViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var disableStatus = false
     @Published var searchText = ""
-    @Published var error: Error? = nil
+    @Published var errorMessage: String? = nil
     
     private let storageManager = StorageManager.shared
     private let networkManager = NetworkManager.shared
@@ -48,9 +48,7 @@ final class TaskListViewViewModel: ObservableObject {
             isLoading.toggle()
             disableStatus.toggle()
             
-            networkManager.fetchData {
-                [weak self] fetchedTasks,
-                error in
+            networkManager.fetchData { [weak self] fetchedTasks, error in
                 guard let self = self else { return }
                 
                 UserDefaults.standard.set(true, forKey: "hasFetchedDataBefore")
@@ -58,7 +56,7 @@ final class TaskListViewViewModel: ObservableObject {
                 self.disableStatus.toggle()
                 
                 if let error = error {
-                    self.error = error  // Устанавливаем ошибку
+                    self.errorMessage = error.localizedDescription  // Устанавливаем ошибку
                     return
                 }
                 

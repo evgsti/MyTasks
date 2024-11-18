@@ -16,7 +16,7 @@ struct TaskCreateView: View {
     
     @State private var newTaskTitle = ""
     @State private var newTaskDescription = ""
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -27,22 +27,28 @@ struct TaskCreateView: View {
                         .focused($isTextFieldFocused)
                 }
             }
+            .navigationTitle("Новая задача")
+            .onTapGesture {
+                isTextFieldFocused.toggle()
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Сохранить") {
+                        withAnimation {
+                            let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
+                            let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
+                            viewModel.createNewTask(title: title, description: description)
+                        }
+                        dismiss()
+                    }
+                    .disabled(newTaskTitle.isEmpty && newTaskDescription.isEmpty)
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Отмена") {
+                        dismiss()
+                    }
+                }
+            }
         }
-        .onTapGesture {
-            isTextFieldFocused.toggle()
-        }
-        .navigationTitle("Добавить задачу")
-        .navigationBarItems(trailing: Button("Готово") {
-            saveTask()
-        }
-            .disabled(newTaskTitle.isEmpty && newTaskDescription.isEmpty)
-        )
-    }
-    
-    private func saveTask() {
-        let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
-        let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
-        viewModel.createNewTask(title: title, description: description)
-        dismiss()
     }
 }

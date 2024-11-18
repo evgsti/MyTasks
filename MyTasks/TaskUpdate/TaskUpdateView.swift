@@ -7,22 +7,18 @@
 
 import SwiftUI
 
-struct TaskEditView: View {
+struct TaskUpdateView: View {
     @Environment(\.dismiss) private var dismiss
+    
     @ObservedObject var viewModel: TaskListViewViewModel
+    
+    @Binding var task: MyTaskItems?
+    
+    @State private var updatedTitle: String = ""
+    @State private var updatedDescription: String = ""
+    
     @FocusState private var isTextFieldFocused: Bool
-    @State private var updatedTitle: String
-    @State private var updatedDescription: String
     
-    private var task: MyTaskItems
-    
-    init(viewModel: TaskListViewViewModel, task: MyTaskItems) {
-        self.viewModel = viewModel
-        self.task = task
-        self._updatedTitle = State(initialValue: task.title ?? "")
-        self._updatedDescription = State(initialValue: task.descriptionText ?? "")
-    }
-
     var body: some View {
         NavigationView {
             Form {
@@ -37,13 +33,25 @@ struct TaskEditView: View {
                 }
             }
             .navigationTitle("Редактировать")
+            .onAppear {
+                if let task = task {
+                    updatedTitle = task.title ?? ""
+                    updatedDescription = task.descriptionText ?? ""
+                }
+            }
             .onTapGesture {
                 isTextFieldFocused.toggle()
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Сохранить") {
-                        saveTask()
+                        withAnimation {
+                            if let task = task {
+                                let title = updatedTitle.isEmpty ? "Без названия" : updatedTitle
+                                let description = updatedDescription.isEmpty ? "Без описания" : updatedDescription
+                                viewModel.updateTask(task: task, title: title, description: description)
+                            }
+                        }
                         dismiss()
                     }
                     .disabled(updatedTitle.isEmpty && updatedDescription.isEmpty)
@@ -55,11 +63,5 @@ struct TaskEditView: View {
                 }
             }
         }
-    }
-    
-    private func saveTask() {
-        let title = updatedTitle.isEmpty ? "Без названия" : updatedTitle
-        let description = updatedDescription.isEmpty ? "Без описания" : updatedDescription
-        viewModel.updateTask(task: task, title: title, description: description)
     }
 }
