@@ -92,14 +92,14 @@ final class TaskListViewViewModel: ObservableObject {
         let lastTwoDigits = count % 100
         
         if lastTwoDigits >= 11 && lastTwoDigits <= 14 {
-            return "задач"
+            return "Задач"
         }
         
         switch lastDigit {
         case 1:
-            return "задача"
+            return "Задача"
         case 2, 3, 4:
-            return "задачи"
+            return "Задачи"
         default:
             return "задач"
         }

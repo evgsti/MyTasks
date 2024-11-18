@@ -45,6 +45,7 @@ struct TaskListView: View {
                             TaskPreviewView(task: task)
                         }
                     }
+                    .listSectionSeparator(.hidden, edges: .top)
                 }
                 .onDelete { indexSet in
                     if let index = indexSet.first {
@@ -66,7 +67,7 @@ struct TaskListView: View {
             .onAppear {
                 viewModel.fetchTasks()
             }
-            .searchable(text: $viewModel.searchText, prompt: "Поиск")
+            .searchable(text: $viewModel.searchText, prompt: "Search")
             .disabled(viewModel.disableStatus)
             .navigationTitle("Задачи")
             .listStyle(.plain)

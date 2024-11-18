@@ -10,7 +10,7 @@ import Foundation
 final class TaskRowViewModel: ObservableObject {
     func formattedDateString(from date: Date) -> String {
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yyyy"
+        dateFormatter.dateFormat = "dd/MM/yy"
         return dateFormatter.string(from: date)
     }
 }

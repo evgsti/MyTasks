@@ -19,12 +19,13 @@ struct TaskRowView: View {
                 action()
             }, label: {
                 Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
-                    .imageScale(.large)
+                    .resizable()
+                    .frame(width: 24, height: 24)
                     .foregroundStyle(task.isCompleted ? Color("TintColor") : .secondary)
             })
             .buttonStyle(.plain)
-            
-            VStack(alignment: .leading) {
+
+            VStack(alignment: .leading, spacing: 12) {
                 Text(task.title ?? "No Title")
                     .font(.headline)
                     .lineLimit(2)
@@ -37,5 +38,7 @@ struct TaskRowView: View {
             }
             .foregroundStyle(task.isCompleted ? .secondary : .primary)
         }
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        .alignmentGuide(.listRowSeparatorTrailing) { _ in UIScreen.main.bounds.width - 40 }
     }
 }
