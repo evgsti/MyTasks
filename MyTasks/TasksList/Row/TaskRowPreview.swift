@@ -9,26 +9,28 @@ import SwiftUI
 
 struct TaskRowPreviewView: View {
     
-    // MARK: - Public Properties
+    // MARK: - Properties
 
-    let task: MyTaskItems
+    private let viewModel: TaskRowViewModel
     
-    // MARK: - Private Properties
-
-    private let viewModel = TaskRowViewModel()
+    // MARK: - Initialization
+    
+    init(viewModel: TaskRowViewModel) {
+        self.viewModel = viewModel
+    }
     
     // MARK: - Body
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(task.title ?? "No Title")
+            Text(viewModel.title)
                 .font(.headline)
                 .lineLimit(4)
-                .strikethrough(task.isCompleted)
-            Text(task.descriptionText ?? "No description")
+                .strikethrough(viewModel.isCompleted)
+            Text(viewModel.descriptionText)
                 .lineLimit(10)
                 .font(.subheadline)
-            Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
+            Text(viewModel.formattedDateString())
                 .font(.subheadline)
                 .foregroundStyle(.gray)
         }

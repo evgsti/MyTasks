@@ -25,7 +25,6 @@ final class StorageManager: ObservableObject {
     init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
         self.persistentContainer = container
         self.viewContext = persistentContainer.viewContext
-        fetchTasksFromCoreData()  // Загружаем задачи при инициализации
     }
     
     // Статический метод для получения стандартного контейнера
@@ -42,7 +41,7 @@ final class StorageManager: ObservableObject {
     // MARK: - Public Methods
 
     // Загрузка всех задач из Core Data
-    func fetchTasksFromCoreData() {
+    func fetchTasks() -> [MyTaskItems] {
         let fetchRequest: NSFetchRequest<MyTaskItems> = MyTaskItems.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -54,7 +53,9 @@ final class StorageManager: ObservableObject {
             print("Error fetching tasks: \(error)")
             tasks = []
         }
+        return tasks
     }
+    
     // MARK: - CRUD
     
     // Сохранение задачи в Core Data
@@ -67,7 +68,6 @@ final class StorageManager: ObservableObject {
         taskEntity.createdAt = createdAt
         
         saveContext()
-        fetchTasksFromCoreData()  // Обновляем список задач
         print("менеджер создал задачу \(title)")
     }
     
@@ -76,7 +76,6 @@ final class StorageManager: ObservableObject {
         task.createdAt = newCreatedAt
 
         saveContext()
-        fetchTasksFromCoreData()
         print("менеджер обновил задачу \(task.title!)")
     }
     
@@ -85,7 +84,6 @@ final class StorageManager: ObservableObject {
         print("менеджер удалил задачу \(task.title!)")
         viewContext.delete(task)
         saveContext()
-        fetchTasksFromCoreData()
     }
     
     // Изменение статуса выполнения задачи
@@ -93,7 +91,6 @@ final class StorageManager: ObservableObject {
         task.isCompleted.toggle()
         
         saveContext()
-        fetchTasksFromCoreData()
         print("менеджер изменил статус выполнения задачи \(task.title!)")
     }
     

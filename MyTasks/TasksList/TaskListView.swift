@@ -24,46 +24,85 @@ struct TaskListView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(presenter.filteredTasks, id: \.id) { task in
-                    TaskRowView(task: task, link: TaskListDetailsView(), action: {})
-                        .contextMenu {
-                            TaskContextMenuView(
-                                updateTask: {
-                                    selectedTask = task
-                                    showTaskUpdateView.toggle()
-                                },
-                                shareTask: {
-                                    // Логика для шаринга задачи
-                                },
-                                deleteTask: {
-                                    withAnimation {
-                                        presenter.deleteTask(task: task)
-                                        
-                                    }
-                                }
-                            )
-                        } preview: {
-                            TaskRowPreviewView(task: task)
-                        }
-                }
-                .onDelete { indexSet in
-                    if let index = indexSet.first {
-                        let taskToDelete = presenter.filteredTasks[index]
-                        withAnimation {
-                            presenter.deleteTask(task: taskToDelete)
-                        }
-                    }
-                }
-                .listSectionSeparator(.hidden, edges: .top)
-                
+                taskRows
             }
+            .searchable(text: $presenter.searchText, prompt: "Search")
+            .disabled(presenter.disableStatus)
             .navigationTitle("Задачи")
             .listStyle(.plain)
         }
-        .onAppear() {
+        .onAppear {
             print("вью запросило задачи у презентера")
-            presenter.getTasks()
+            presenter.fetchTasks()
         }
+        .overlay(loadingOverlay)
+        .alert(isPresented: $showAlert) {
+            errorAlert
+        }
+        .onReceive(presenter.$errorMessage) { error in
+            if error != nil {
+                showAlert = true
+            }
+        }
+        .tint(Color("TintColor"))
+    }
+    
+    // MARK: - Subviews
+    
+    private var taskRows: some View {
+        ForEach(presenter.filteredTasks, id: \.id) { task in
+            TaskRowView(viewModel: TaskRowViewModel(task: task), link: TaskListDetailsView(), action: {})
+                .contextMenu {
+                    taskContextMenu(for: task)
+                } preview: {
+                    TaskRowPreviewView(viewModel: TaskRowViewModel(task: task))
+                }
+        }
+        .onDelete(perform: deleteTask)
+        .listSectionSeparator(.hidden, edges: .top)
+    }
+    
+    private func taskContextMenu(for task: MyTaskItems) -> some View {
+        TaskContextMenuView(
+            updateTask: {
+                selectedTask = task
+                showTaskUpdateView.toggle()
+            },
+            shareTask: {
+                // Логика для шаринга задачи
+            },
+            deleteTask: {
+                withAnimation {
+                    presenter.deleteTask(task: task)
+                }
+            }
+        )
+    }
+    
+    private func deleteTask(at indexSet: IndexSet) {
+        if let index = indexSet.first {
+            let taskToDelete = presenter.filteredTasks[index]
+            withAnimation {
+                presenter.deleteTask(task: taskToDelete)
+            }
+        }
+    }
+    
+    private var loadingOverlay: some View {
+        Group {
+            if presenter.isLoading {
+                ProgressView("Загрузка...")
+                    .progressViewStyle(CircularProgressViewStyle())
+            }
+        }
+    }
+    
+    private var errorAlert: Alert {
+        Alert(
+            title: Text("Ошибка"),
+            message: Text(presenter.errorMessage ?? "Произошла неизвестная ошибка"),
+            dismissButton: .default(Text("ОК"))
+        )
     }
 }
 

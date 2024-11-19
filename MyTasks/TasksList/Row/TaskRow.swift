@@ -9,11 +9,21 @@ import SwiftUI
 
 struct TaskRowView<Destination: View>: View {
     
-    private let viewModel = TaskRowViewModel()
+    // MARK: - Properties
     
-    var task: MyTaskItems
+    private let viewModel: TaskRowViewModel
     var link: Destination
     var action: () -> Void
+    
+    // MARK: - Initialization
+    
+    init(viewModel: TaskRowViewModel, link: Destination, action: @escaping () -> Void) {
+        self.viewModel = viewModel
+        self.link = link
+        self.action = action
+    }
+    
+    // MARK: - Body
     
     var body: some View {
         ZStack(alignment: .leading) {
@@ -21,23 +31,23 @@ struct TaskRowView<Destination: View>: View {
                 Button(action: {
                     action()
                 }, label: {
-                    Image(systemName: task.isCompleted ? "checkmark.circle" : "circle")
+                    Image(systemName: viewModel.isCompleted ? "checkmark.circle" : "circle")
                         .resizable()
                         .frame(width: 24, height: 24)
-                        .foregroundStyle(task.isCompleted ? Color("TintColor") : .secondary)
-                })                
+                        .foregroundStyle(viewModel.isCompleted ? Color("TintColor") : .secondary)
+                })
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(task.title ?? "No Title")
+                    Text(viewModel.title)
                         .font(.headline)
                         .lineLimit(2)
-                        .strikethrough(task.isCompleted)
-                    Text(task.descriptionText ?? "No description")
+                        .strikethrough(viewModel.isCompleted)
+                    Text(viewModel.descriptionText)
                         .font(.subheadline)
                         .lineLimit(2)
-                    Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
+                    Text(viewModel.formattedDateString())
                         .font(.subheadline)
                 }
-                .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                .foregroundStyle(viewModel.isCompleted ? .secondary : .primary)
             }
             .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
             .alignmentGuide(.listRowSeparatorTrailing) { _ in UIScreen.main.bounds.width - 40 }

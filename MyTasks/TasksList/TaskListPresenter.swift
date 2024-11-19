@@ -10,7 +10,6 @@ import Combine
 
 protocol TaskListPresenterProtocol: AnyObject {
     var tasks: [MyTaskItems] { get }
-    func getTasks()
     func deleteTask(task: MyTaskItems)
 }
 
@@ -18,7 +17,11 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
     
     @Published var tasks: [MyTaskItems] = []
     @Published var searchText = ""
-
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String? = nil
+    @Published var disableStatus: Bool = false
+    
+    
     var filteredTasks: [MyTaskItems] {
         if searchText.isEmpty {
             return tasks
@@ -29,22 +32,37 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
             }
         }
     }
-    
+    private var cancellables = Set<AnyCancellable>()
     private let interactor: TaskListInteractorProtocol
     
     init(interactor: TaskListInteractorProtocol) {
         self.interactor = interactor
+        
+        if let observableInteractor = interactor as? TaskListInteractor {
+            observableInteractor.$isLoading
+                .assign(to: \.isLoading, on: self)
+                .store(in: &cancellables)
+            observableInteractor.$errorMessage
+                .assign(to: \.errorMessage, on: self)
+                .store(in: &cancellables)
+            observableInteractor.$disableStatus
+                .assign(to: \.disableStatus, on: self)
+                .store(in: &cancellables)
+            observableInteractor.$tasks
+                .assign(to: \.tasks, on: self)
+                .store(in: &cancellables)
+        }
     }
     
-    func getTasks() {
+    func fetchTasks() {
         print("презентер запросил задачи у интерактора")
-        tasks = interactor.fetchTasks()
+        interactor.fetchTasks()
     }
     
     func deleteTask(task: MyTaskItems) {
         print("презентер запросил удаление задачи у интерактора")
         interactor.deleteTask(task: task)
-        getTasks()
+        fetchTasks()
     }
     
     func formattedDateString(from date: Date) -> String {
