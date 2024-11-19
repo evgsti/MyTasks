@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct TaskRowView: View {
+    
+    // MARK: - Properties
+    
     private let viewModel = TaskRowViewModel()
     
     var task: MyTaskItems
     var action: () -> Void
+    
+    // MARK: - Body
     
     var body: some View {
         HStack(alignment: .top) {
@@ -24,15 +29,17 @@ struct TaskRowView: View {
                     .foregroundStyle(task.isCompleted ? Color("TintColor") : .secondary)
             })
             .buttonStyle(.plain)
-
+            
             VStack(alignment: .leading, spacing: 12) {
                 Text(task.title ?? "No Title")
                     .font(.headline)
                     .lineLimit(2)
                     .strikethrough(task.isCompleted)
+                
                 Text(task.descriptionText ?? "No description")
                     .font(.subheadline)
                     .lineLimit(2)
+                
                 Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
                     .font(.subheadline)
             }

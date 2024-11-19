@@ -9,21 +9,30 @@ import Foundation
 import Combine
 
 final class TaskListViewViewModel: ObservableObject {
+    
+    // MARK: - Public Properties
+
     @Published var tasks: [MyTaskItems] = []
     @Published var isLoading = false
     @Published var disableStatus = false
     @Published var searchText = ""
     @Published var errorMessage: String? = nil
-    
+
+    // MARK: - Private Properties
+
     private let storageManager = StorageManager.shared
     private let networkManager = NetworkManager.shared
-    
+
     private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Initialization
     
     init() {
         loadTasks()
         setupSearchBinding()
     }
+    
+    // MARK: - Computed Properties
     
     var filteredTasks: [MyTaskItems] {
         if searchText.isEmpty {
@@ -36,11 +45,63 @@ final class TaskListViewViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Public Methods
+
     func toggleTaskCompletion(task: MyTaskItems) {
         storageManager.complitionToggle(task: task)
         fetchTasks()
     }
     
+    func getTaskCountText(count: Int) -> String {
+        let lastDigit = count % 10
+        let lastTwoDigits = count % 100
+        
+        if lastTwoDigits >= 11 && lastTwoDigits <= 14 {
+            return "Задач"
+        }
+        
+        switch lastDigit {
+        case 1:
+            return "Задача"
+        case 2, 3, 4:
+            return "Задачи"
+        default:
+            return "задач"
+        }
+    }
+    
+    func createNewTask(title: String, description: String) {
+        storageManager.create(
+            id: UUID(),
+            title: title,
+            description: description,
+            isCompleted: false,
+            createdAt: Date()
+        )
+        fetchTasks()
+    }
+    
+    func updateTask(task: MyTaskItems, description: String) {
+        storageManager.update(
+            task: task,
+            //newTitle: title,
+            newDescription: description,
+            newCreatedAt: Date()
+        )
+        fetchTasks()
+    }
+    
+    func deleteTask(_ task: MyTaskItems) {
+        storageManager.delete(task: task)
+        fetchTasks()
+    }
+    
+    func fetchTasks() {
+        tasks = storageManager.tasks
+    }
+    
+    // MARK: - Private Methods
+
     private func loadTasks() {
         let hasFetchedDataBefore = UserDefaults.standard.bool(forKey: "hasFetchedDataBefore")
         
@@ -87,51 +148,5 @@ final class TaskListViewViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func getTaskCountText(count: Int) -> String {
-        let lastDigit = count % 10
-        let lastTwoDigits = count % 100
-        
-        if lastTwoDigits >= 11 && lastTwoDigits <= 14 {
-            return "Задач"
-        }
-        
-        switch lastDigit {
-        case 1:
-            return "Задача"
-        case 2, 3, 4:
-            return "Задачи"
-        default:
-            return "задач"
-        }
-    }
     
-    func createNewTask(title: String, description: String) {
-        storageManager.create(
-            id: UUID(),
-            title: title,
-            description: description,
-            isCompleted: false,
-            createdAt: Date()
-        )
-        fetchTasks()
-    }
-    
-    func updateTask(task: MyTaskItems, title: String, description: String) {
-        storageManager.update(
-            task: task,
-            newTitle: title,
-            newDescription: description,
-            newCreatedAt: Date()
-        )
-        fetchTasks()
-    }
-    
-    func deleteTask(_ task: MyTaskItems) {
-        storageManager.delete(task: task)
-        fetchTasks()
-    }
-    
-    func fetchTasks() {
-        tasks = storageManager.tasks
-    }
 }

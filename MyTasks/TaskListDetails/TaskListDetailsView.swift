@@ -8,11 +8,28 @@
 import SwiftUI
 
 struct TaskListDetailsView: View {
-    private let viewModel = TaskRowViewModel()
+    
+    // MARK: - Public Properties
 
     @Environment(\.presentationMode) var presentationMode
-
+    
     let task: MyTaskItems
+    
+    // MARK: - Private Properties
+
+    @State private var newTaskDescription: String
+    @State private var debounceWorkItem: DispatchWorkItem?
+    
+    private let viewModel = TaskRowViewModel()
+    
+    // MARK: - Initializer
+    
+    init(task: MyTaskItems) {
+        self.task = task
+        _newTaskDescription = State(initialValue: task.descriptionText ?? "")
+    }
+    
+    // MARK: - Body
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -20,22 +37,43 @@ struct TaskListDetailsView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 15)
-            Text(task.descriptionText ?? "Без описания")
+            
+            TextEditor(text: $newTaskDescription)
                 .font(.body)
+                .frame(maxWidth: .infinity)
+                .autocorrectionDisabled(true)
+                .onChange(of: newTaskDescription) {
+                    debounceUpdateTask()
+                }
+            
             Spacer()
         }
-        .navigationBarTitle(task.title ?? "Без названия" )
+        .navigationBarTitle(task.title ?? "Без названия")
         .navigationBarBackButtonHidden(true)
         .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                    }) {
-                        Image(systemName: "chevron.backward")
-                        Text("Назад")
-                    }
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: handleBackButtonTap) {
+                    Image(systemName: "chevron.backward")
+                    Text("Назад")
                 }
             }
+        }
         .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func debounceUpdateTask() {
+        debounceWorkItem?.cancel()
+        let workItem = DispatchWorkItem {
+            viewModel.updateTask(task: task, description: newTaskDescription)
+        }
+        debounceWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+    }
+    
+    private func handleBackButtonTap() {
+        presentationMode.wrappedValue.dismiss()
+        viewModel.updateTask(task: task, description: newTaskDescription)
     }
 }

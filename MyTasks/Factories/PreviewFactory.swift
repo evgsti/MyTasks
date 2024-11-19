@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct TaskPreviewView: View {
+    
+    // MARK: - Public Properties
+
     let task: MyTaskItems
+    
+    // MARK: - Private Properties
+
     private let viewModel = TaskRowViewModel()
     
+    // MARK: - Body
+
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(task.title ?? "No Title")

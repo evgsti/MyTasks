@@ -8,10 +8,17 @@
 import SwiftUI
 
 struct TaskToolbarView: View {
-    private let viewModel = TaskListViewViewModel()
+    
+    // MARK: - Public Properties
     
     let createTask: () -> Void
+
+    // MARK: - Private Properties
+
+    private let viewModel = TaskListViewViewModel()
     
+    // MARK: - Body
+
     var body: some View {
         ZStack {
             Text("\(viewModel.tasks.count) \(viewModel.getTaskCountText(count: viewModel.tasks.count))")

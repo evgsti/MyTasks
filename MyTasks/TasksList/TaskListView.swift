@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct TaskListView: View {
+    
+    // MARK: - Private Properties
+
     @StateObject private var viewModel = TaskListViewViewModel()
     
     @State private var selectedTask: MyTaskItems?
     @State private var showCreateTaskView = false
     @State private var showTaskUpdateView = false
     @State private var showAlert = false
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationView {
@@ -55,10 +60,6 @@ struct TaskListView: View {
                         }
                     }
                 }
-            }
-            .sheet(item: $selectedTask) { task in
-                TaskUpdateView(viewModel: viewModel, task: $selectedTask)
-                    .presentationDetents([.medium, .large])
             }
             .sheet(isPresented: $showCreateTaskView) {
                 TaskCreateView(viewModel: viewModel)

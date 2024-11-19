@@ -1,4 +1,3 @@
-//
 //  TaskCreateView.swift
 //  MyTasks
 //
@@ -8,14 +7,21 @@
 import SwiftUI
 
 struct TaskCreateView: View {
-    @Environment(\.dismiss) private var dismiss
+    
+    // MARK: - Public Properties
     
     @ObservedObject var viewModel: TaskListViewViewModel
+
+    // MARK: - Private Properties
+
+    @Environment(\.dismiss) private var dismiss
     
     @FocusState private var isTextFieldFocused: Bool
     
     @State private var newTaskTitle = ""
     @State private var newTaskDescription = ""
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationView {

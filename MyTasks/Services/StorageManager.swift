@@ -9,18 +9,24 @@ import CoreData
 
 final class StorageManager: ObservableObject {
     
+    // MARK: - Public Properties
+
     static let shared = StorageManager()
     
     @Published var tasks: [MyTaskItems] = []
     
+    // MARK: - Private Properties
+    
+    private let persistentContainer: NSPersistentContainer
+    private let viewContext: NSManagedObjectContext
+    
+    // MARK: - Initializer
+
     init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
         self.persistentContainer = container
         self.viewContext = persistentContainer.viewContext
         fetchTasks()  // Загружаем задачи при инициализации
     }
-    
-    private let persistentContainer: NSPersistentContainer
-    private let viewContext: NSManagedObjectContext
     
     // Статический метод для получения стандартного контейнера
     static func defaultPersistentContainer() -> NSPersistentContainer {
@@ -33,6 +39,8 @@ final class StorageManager: ObservableObject {
         return container
     }
     
+    // MARK: - Public Methods
+
     // Загрузка всех задач из Core Data
     func fetchTasks() {
         let fetchRequest: NSFetchRequest<MyTaskItems> = MyTaskItems.fetchRequest()
@@ -47,6 +55,7 @@ final class StorageManager: ObservableObject {
         }
     }
     // MARK: - CRUD
+    
     // Сохранение задачи в Core Data
     func create(id: UUID, title: String, description: String, isCompleted: Bool, createdAt: Date) {
         let taskEntity = MyTaskItems(context: viewContext)
@@ -60,14 +69,12 @@ final class StorageManager: ObservableObject {
         fetchTasks()  // Обновляем список задач
     }
     
-    // Обновление задачи
-    func update(task: MyTaskItems, newTitle: String, newDescription: String, newCreatedAt: Date) {
-        task.title = newTitle
+    func update(task: MyTaskItems, newDescription: String, newCreatedAt: Date) {
         task.descriptionText = newDescription
         task.createdAt = newCreatedAt
         
         saveContext()
-        fetchTasks()  // Обновляем список задач
+        fetchTasks()
     }
     
     // Удаление задачи
@@ -75,7 +82,7 @@ final class StorageManager: ObservableObject {
         viewContext.delete(task)
         
         saveContext()
-        fetchTasks()  // Обновляем список задач
+        fetchTasks()
     }
     
     // Изменение статуса выполнения задачи
@@ -83,9 +90,11 @@ final class StorageManager: ObservableObject {
         task.isCompleted.toggle()
         
         saveContext()
-        fetchTasks()  // Обновляем список задач
+        fetchTasks()
     }
     
+    // MARK: - Private Methods
+
     // Сохранение изменений в Core Data
     private func saveContext() {
         if viewContext.hasChanges {

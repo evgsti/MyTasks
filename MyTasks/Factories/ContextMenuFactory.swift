@@ -9,10 +9,14 @@ import SwiftUI
 
 struct TaskContextMenuView: View {
     
+    // MARK: - Public Properties
+
     let editTask: () -> Void
     let shareTask: () -> Void
     let deleteTask: () -> Void
     
+    // MARK: - Body
+
     var body: some View {
         Button {
             editTask()
