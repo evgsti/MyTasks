@@ -13,7 +13,7 @@ final class StorageManager: ObservableObject {
 
     static let shared = StorageManager()
     
-    @Published var tasks: [MyTaskItems] = []
+    var tasks: [MyTaskItems] = []
     
     // MARK: - Private Properties
     
@@ -25,7 +25,7 @@ final class StorageManager: ObservableObject {
     init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
         self.persistentContainer = container
         self.viewContext = persistentContainer.viewContext
-        fetchTasks()  // Загружаем задачи при инициализации
+        fetchTasksFromCoreData()  // Загружаем задачи при инициализации
     }
     
     // Статический метод для получения стандартного контейнера
@@ -42,13 +42,14 @@ final class StorageManager: ObservableObject {
     // MARK: - Public Methods
 
     // Загрузка всех задач из Core Data
-    func fetchTasks() {
+    func fetchTasksFromCoreData() {
         let fetchRequest: NSFetchRequest<MyTaskItems> = MyTaskItems.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         
         do {
             tasks = try viewContext.fetch(fetchRequest)
+            print("менеджер загрузил задачи из Core Data")
         } catch let error {
             print("Error fetching tasks: \(error)")
             tasks = []
@@ -66,23 +67,25 @@ final class StorageManager: ObservableObject {
         taskEntity.createdAt = createdAt
         
         saveContext()
-        fetchTasks()  // Обновляем список задач
+        fetchTasksFromCoreData()  // Обновляем список задач
+        print("менеджер создал задачу \(title)")
     }
     
     func update(task: MyTaskItems, newDescription: String, newCreatedAt: Date) {
         task.descriptionText = newDescription
         task.createdAt = newCreatedAt
-        
+
         saveContext()
-        fetchTasks()
+        fetchTasksFromCoreData()
+        print("менеджер обновил задачу \(task.title!)")
     }
     
     // Удаление задачи
     func delete(task: MyTaskItems) {
+        print("менеджер удалил задачу \(task.title!)")
         viewContext.delete(task)
-        
         saveContext()
-        fetchTasks()
+        fetchTasksFromCoreData()
     }
     
     // Изменение статуса выполнения задачи
@@ -90,7 +93,8 @@ final class StorageManager: ObservableObject {
         task.isCompleted.toggle()
         
         saveContext()
-        fetchTasks()
+        fetchTasksFromCoreData()
+        print("менеджер изменил статус выполнения задачи \(task.title!)")
     }
     
     // MARK: - Private Methods

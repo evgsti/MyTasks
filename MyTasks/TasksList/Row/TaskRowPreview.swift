@@ -1,5 +1,5 @@
 //
-//  PreviewFactory.swift
+//  TaskRowPreview.swift
 //  MyTasks
 //
 //  Created by Евгений on 16.11.2024.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TaskPreviewView: View {
+struct TaskRowPreviewView: View {
     
     // MARK: - Public Properties
 

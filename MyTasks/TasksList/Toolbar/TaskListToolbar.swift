@@ -9,27 +9,29 @@ import SwiftUI
 
 struct TaskToolbarView: View {
     
+    var tasks: [MyTaskItems] = []
+    
     // MARK: - Public Properties
     
     let createTask: () -> Void
 
     // MARK: - Private Properties
 
-    private let viewModel = TaskListViewViewModel()
+    private let viewModel = TaskListToolbarViewModel()
     
     // MARK: - Body
 
     var body: some View {
         ZStack {
-            Text("\(viewModel.tasks.count) \(viewModel.getTaskCountText(count: viewModel.tasks.count))")
+            Text("\(tasks.count) \(viewModel.getTaskCountText(count: tasks.count))")
                 .font(.subheadline)
             HStack {
                 Spacer()
                 Button(action: createTask) {
                     Image(systemName: "square.and.pencil")
                 }
-                .foregroundStyle(viewModel.disableStatus ? .primary : Color("TintColor"))
-                .disabled(viewModel.disableStatus)
+//                .foregroundStyle(viewModel.disableStatus ? .primary : Color("TintColor"))
+//                .disabled(viewModel.disableStatus)
             }
         }
     }

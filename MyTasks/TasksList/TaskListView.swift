@@ -10,30 +10,25 @@ import SwiftUI
 struct TaskListView: View {
     
     // MARK: - Private Properties
-
-    @StateObject private var viewModel = TaskListViewViewModel()
     
     @State private var selectedTask: MyTaskItems?
+    
     @State private var showCreateTaskView = false
     @State private var showTaskUpdateView = false
     @State private var showAlert = false
+    
+    @ObservedObject var presenter: TaskListPresenter
     
     // MARK: - Body
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.filteredTasks, id: \.id) { task in
-                    NavigationLink(destination: TaskListDetailsView(task: task)) {
-                        TaskRowView(
-                            task: task,
-                            action: {
-                                viewModel.toggleTaskCompletion(task: task)
-                            }
-                        )
+                ForEach(presenter.filteredTasks, id: \.id) { task in
+                    TaskRowView(task: task, link: TaskListDetailsView(), action: {})
                         .contextMenu {
                             TaskContextMenuView(
-                                editTask: {
+                                updateTask: {
                                     selectedTask = task
                                     showTaskUpdateView.toggle()
                                 },
@@ -42,62 +37,77 @@ struct TaskListView: View {
                                 },
                                 deleteTask: {
                                     withAnimation {
-                                        viewModel.deleteTask(task)
+                                        presenter.deleteTask(task: task)
+                                        
                                     }
                                 }
                             )
                         } preview: {
-                            TaskPreviewView(task: task)
+                            TaskRowPreviewView(task: task)
                         }
-                    }
-                    .listSectionSeparator(.hidden, edges: .top)
                 }
                 .onDelete { indexSet in
                     if let index = indexSet.first {
-                        let taskToDelete = viewModel.filteredTasks[index]
+                        let taskToDelete = presenter.filteredTasks[index]
                         withAnimation {
-                            viewModel.deleteTask(taskToDelete)
+                            presenter.deleteTask(task: taskToDelete)
                         }
                     }
                 }
+                .listSectionSeparator(.hidden, edges: .top)
+                
             }
-            .sheet(isPresented: $showCreateTaskView) {
-                TaskCreateView(viewModel: viewModel)
-                    .presentationDetents([.medium, .large])
-            }
-            .onAppear {
-                viewModel.fetchTasks()
-            }
-            .searchable(text: $viewModel.searchText, prompt: "Search")
-            .disabled(viewModel.disableStatus)
             .navigationTitle("Задачи")
             .listStyle(.plain)
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    TaskToolbarView(createTask: {
-                        showCreateTaskView.toggle()
-                    })
-                }
-            }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView("Загрузка...")
-                        .progressViewStyle(CircularProgressViewStyle())
-                }
-            }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Ошибка"),
-                    message: Text(viewModel.errorMessage ?? "Произошла неизвестная ошибка"),
-                    dismissButton: .default(Text("ОК"))
-                )
-            }
-            .onReceive(viewModel.$errorMessage) { error in
-                if error != nil {
-                    showAlert = true
-                }
-            }
         }
-        .tint(Color("TintColor"))
+        .onAppear() {
+            print("вью запросило задачи у презентера")
+            presenter.getTasks()
+        }
     }
 }
+
+//                    }
+//                }
+//            }
+//            .sheet(isPresented: $showCreateTaskView) {
+//                TaskCreateView(viewModel: viewModel)
+//                    .presentationDetents([.medium, .large])
+//            }
+//            .onAppear {
+//                print(viewModel.filteredTasks)
+//                viewModel.fetchTasks()
+//            }
+//            .searchable(text: $viewModel.searchText, prompt: "Search")
+//            .disabled(viewModel.disableStatus)
+//            .navigationTitle("Задачи")
+//            .listStyle(.plain)
+//            .toolbar {
+//                ToolbarItemGroup(placement: .bottomBar) {
+//                    TaskToolbarView(createTask: {
+//                        showCreateTaskView.toggle()
+//                    })
+//                }
+//            }
+//            .overlay {
+//                if viewModel.isLoading {
+//                    ProgressView("Загрузка...")
+//                        .progressViewStyle(CircularProgressViewStyle())
+//                }
+//            }
+//            .alert(isPresented: $showAlert) {
+//                Alert(
+//                    title: Text("Ошибка"),
+//                    message: Text(viewModel.errorMessage ?? "Произошла неизвестная ошибка"),
+//                    dismissButton: .default(Text("ОК"))
+//                )
+//            }
+//            .onReceive(viewModel.$errorMessage) { error in
+//                if error != nil {
+//                    showAlert = true
+//                }
+//            }
+//        }
+//        .tint(Color("TintColor"))
+//    }
+//}

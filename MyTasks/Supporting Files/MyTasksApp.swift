@@ -8,10 +8,10 @@
 import SwiftUI
 
 @main
-struct MyTasksApp: App {
+struct testviperApp: App {
     var body: some Scene {
         WindowGroup {
-            TaskListView()
+            TaskListView(presenter: TaskListPresenter(interactor: TaskListInteractor()))
         }
     }
 }
