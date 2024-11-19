@@ -9,6 +9,7 @@ import Foundation
 import Network
 
 final class NetworkManager {
+    
     // MARK: - Public Properties
     
     static let shared = NetworkManager()

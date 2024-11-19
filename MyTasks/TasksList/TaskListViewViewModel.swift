@@ -147,6 +147,4 @@ final class TaskListViewViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
-    
 }
