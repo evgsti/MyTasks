@@ -9,23 +9,20 @@ import Foundation
 
 protocol TaskListInteractorProtocol: AnyObject {
     func fetchTasks()
+    func createTask(title: String, description: String)
     func deleteTask(task: MyTaskItems)
+    func toggleTaskCompletion(task: MyTaskItems)
 }
 
 final class TaskListInteractor: TaskListInteractorProtocol {
+    
     @Published var isLoading = false
     @Published var disableStatus = false
     @Published var errorMessage: String? = nil
-    @Published var tasks: [MyTaskItems] = []  // Добавьте это свойство
+    @Published var tasks: [MyTaskItems] = []
     
     private let storageManager = StorageManager.shared
     private let networkManager = NetworkManager.shared
-    
-    func deleteTask(task: MyTaskItems) {
-        print("интерактор запросил удаление задачи у менеджера")
-        storageManager.delete(task: task)
-        fetchTasks()
-    }
     
     func fetchTasks() {
         print("интерактор запросил задачи у менеджера")
@@ -58,7 +55,6 @@ final class TaskListInteractor: TaskListInteractorProtocol {
                             createdAt: Date()
                         )
                     }
-                    // После создания задач обновим локальный массив задач
                     self.tasks = self.storageManager.fetchTasks()
                 }
             }
@@ -67,5 +63,26 @@ final class TaskListInteractor: TaskListInteractorProtocol {
             tasks = storageManager.fetchTasks()
         }
     }
+    
+    func createTask(title: String, description: String) {
+            storageManager.create(
+                id: UUID(),
+                title: title,
+                description: description,
+                isCompleted: false,
+                createdAt: Date()
+            )
+            fetchTasks()
+        }
 
+    func deleteTask(task: MyTaskItems) {
+        print("интерактор запросил удаление задачи у менеджера")
+        storageManager.delete(task: task)
+        fetchTasks()
+    }
+    
+    func toggleTaskCompletion(task: MyTaskItems) {
+        storageManager.complitionToggle(task: task)
+        fetchTasks()
+    }
 }

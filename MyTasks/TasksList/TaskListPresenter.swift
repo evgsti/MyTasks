@@ -9,7 +9,6 @@ import Foundation
 import Combine
 
 protocol TaskListPresenterProtocol: AnyObject {
-    var tasks: [MyTaskItems] { get }
     func deleteTask(task: MyTaskItems)
 }
 
@@ -21,7 +20,6 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var disableStatus: Bool = false
     
-    
     var filteredTasks: [MyTaskItems] {
         if searchText.isEmpty {
             return tasks
@@ -32,6 +30,7 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
             }
         }
     }
+    
     private var cancellables = Set<AnyCancellable>()
     private let interactor: TaskListInteractorProtocol
     
@@ -39,6 +38,9 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
         self.interactor = interactor
         
         if let observableInteractor = interactor as? TaskListInteractor {
+            observableInteractor.$tasks
+                .assign(to: \.tasks, on: self)
+                .store(in: &cancellables)
             observableInteractor.$isLoading
                 .assign(to: \.isLoading, on: self)
                 .store(in: &cancellables)
@@ -48,9 +50,6 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
             observableInteractor.$disableStatus
                 .assign(to: \.disableStatus, on: self)
                 .store(in: &cancellables)
-            observableInteractor.$tasks
-                .assign(to: \.tasks, on: self)
-                .store(in: &cancellables)
         }
     }
     
@@ -59,15 +58,21 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
         interactor.fetchTasks()
     }
     
+    func createTask(title: String, description: String) {
+        print("презентер запросил создание задачи у интерактора")
+        interactor.createTask(title: title, description: description)
+        fetchTasks()
+    }
+    
     func deleteTask(task: MyTaskItems) {
         print("презентер запросил удаление задачи у интерактора")
         interactor.deleteTask(task: task)
         fetchTasks()
     }
     
-    func formattedDateString(from date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yy"
-        return dateFormatter.string(from: date)
+    func toggleTaskCompletion(task: MyTaskItems) {
+        print("презентер запросил удаление задачи у интерактора")
+        interactor.toggleTaskCompletion(task: task)
+        fetchTasks()
     }
 }

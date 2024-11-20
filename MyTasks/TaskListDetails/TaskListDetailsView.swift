@@ -8,74 +8,44 @@
 import SwiftUI
 
 struct TaskListDetailsView: View {
-    //
-    //    // MARK: - Public Properties
-    //
-    //    @Environment(\.presentationMode) var presentationMode
-    //
-    //    let task: [Task]
-    //
-    //    // MARK: - Private Properties
-    //
-    //    @State private var newTaskDescription: String
-    //    @State private var debounceWorkItem: DispatchWorkItem?
-    //
-    //    private let viewModel = TaskRowViewModel()
-    //
-    //    // MARK: - Initializer
-    //
-    //    init(task: Task) {
-    //        self.task = task
-    //        _newTaskDescription = State(initialValue: task.descriptionText ?? "")
-    //    }
     
-    // MARK: - Body
+    @ObservedObject var presenter: TaskListDetailsPresenter
+    
+    @State private var editedDescription: String = ""
     
     var body: some View {
-        Text("Hello, World!")
-        //        VStack(alignment: .leading) {
-        //            Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
-        //                .font(.subheadline)
-        //                .foregroundStyle(.secondary)
-        //                .padding(.bottom, 15)
-        //
-        //            TextEditor(text: $newTaskDescription)
-        //                .font(.body)
-        //                .frame(maxWidth: .infinity)
-        //                .autocorrectionDisabled(true)
-        //                .onChange(of: newTaskDescription) {
-        //                    debounceUpdateTask()
-        //                }
-        //
-        //            Spacer()
-        //        }
-        //        .navigationBarTitle(task.title ?? "Без названия")
-        //        .navigationBarBackButtonHidden(true)
-        //        .toolbar {
-        //            ToolbarItem(placement: .navigationBarLeading) {
-        //                Button(action: handleBackButtonTap) {
-        //                    Image(systemName: "chevron.backward")
-        //                    Text("Назад")
-        //                }
-        //            }
-        //        }
-        //        .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
-        //    }
-        //
-        //    // MARK: - Private Methods
-        //
-        //    private func debounceUpdateTask() {
-        //        debounceWorkItem?.cancel()
-        //        let workItem = DispatchWorkItem {
-        //            viewModel.updateTask(task: task, description: newTaskDescription)
-        //        }
-        //        debounceWorkItem = workItem
-        //        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
-        //    }
-        //
-        //    private func handleBackButtonTap() {
-        //        presentationMode.wrappedValue.dismiss()
-        //        viewModel.updateTask(task: task, description: newTaskDescription)
-        //    }
+        VStack(alignment: .leading) {
+            Text(presenter.createdAt)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .padding(.bottom, 15)
+            
+            // TextEditor для редактирования описания
+            TextEditor(text: $editedDescription)
+                .padding()
+                .frame(height: 200)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(8)
+                .onAppear {
+                    // При загрузке экрана устанавливаем текущее описание задачи
+                    editedDescription = presenter.description
+                }
+            
+            Spacer()
+        }
+        .navigationBarTitle(presenter.title)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    // Сохраняем изменения при нажатии на кнопку назад
+                    presenter.updateDescription(description: editedDescription)
+                    print(editedDescription)
+                }) {
+                    Image(systemName: "chevron.backward")
+                    Text("Назад")
+                }
+            }
+        }
+        .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
     }
 }

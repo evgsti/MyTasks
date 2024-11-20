@@ -36,6 +36,8 @@ struct TaskRowView<Destination: View>: View {
                         .frame(width: 24, height: 24)
                         .foregroundStyle(viewModel.isCompleted ? Color("TintColor") : .secondary)
                 })
+                .buttonStyle(PlainButtonStyle())
+                
                 VStack(alignment: .leading, spacing: 12) {
                     Text(viewModel.title)
                         .font(.headline)
@@ -46,9 +48,11 @@ struct TaskRowView<Destination: View>: View {
                         .lineLimit(2)
                     Text(viewModel.formattedDateString())
                         .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
                 .foregroundStyle(viewModel.isCompleted ? .secondary : .primary)
             }
+            .contentShape(Rectangle())
             .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
             .alignmentGuide(.listRowSeparatorTrailing) { _ in UIScreen.main.bounds.width - 40 }
             

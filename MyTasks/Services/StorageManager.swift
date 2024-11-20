@@ -71,12 +71,13 @@ final class StorageManager: ObservableObject {
         print("менеджер создал задачу \(title)")
     }
     
-    func update(task: MyTaskItems, newDescription: String, newCreatedAt: Date) {
+    func update(task: MyTaskItems, newDescription: String) {
         task.descriptionText = newDescription
-        task.createdAt = newCreatedAt
+        task.createdAt = Date()
 
         saveContext()
-        print("менеджер обновил задачу \(task.title!)")
+        print("менеджер обновил задачу \(task.id!)")
+        print("менеджер обновил задачу \(task.descriptionText!)")
     }
     
     // Удаление задачи
