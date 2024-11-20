@@ -14,8 +14,7 @@ struct TaskListDetailsView: View {
     @ObservedObject var presenter: TaskListDetailsPresenter
     
     @State private var editedDescription: String = ""
-    @State private var debounceWorkItem: DispatchWorkItem?
-
+    
     var onSave: (() -> Void)?
     
     var body: some View {
@@ -24,14 +23,12 @@ struct TaskListDetailsView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .padding(.bottom, 15)
-            
-            // TextEditor для редактирования описания
             TextEditor(text: $editedDescription)
                 .font(.body)
                 .frame(maxWidth: .infinity)
                 .autocorrectionDisabled(true)
                 .onChange(of: editedDescription) {
-                    debounceUpdateTask()
+                    presenter.debounceUpdateDescription(description: editedDescription, context: viewContext)
                 }
                 .onAppear {
                     editedDescription = presenter.description
@@ -50,6 +47,7 @@ struct TaskListDetailsView: View {
                 Button(action: {
                     dismiss()
                     onSave?()
+                    presenter.updateDescription(description: editedDescription, context: viewContext)
                     print(editedDescription)
                 }) {
                     Image(systemName: "chevron.backward")
@@ -59,13 +57,4 @@ struct TaskListDetailsView: View {
         }
         .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
     }
-    
-    private func debounceUpdateTask() {
-            debounceWorkItem?.cancel()
-            let workItem = DispatchWorkItem {
-                presenter.updateDescription(description: editedDescription, context: viewContext)
-            }
-            debounceWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
-        }
 }

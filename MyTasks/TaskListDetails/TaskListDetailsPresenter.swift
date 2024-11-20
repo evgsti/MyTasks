@@ -47,4 +47,8 @@ class TaskListDetailsPresenter: TaskListDetailsPresenterProtocol, ObservableObje
         print("презентер: измененное описание из вью", description)
         interactor.updateDescription(task: task, description: description, context: context)
     }
+    
+    func debounceUpdateDescription(description: String, context: NSManagedObjectContext) {
+        interactor.debounceUpdateDescription(task: task, description: description, context: context)
+    }
 }
