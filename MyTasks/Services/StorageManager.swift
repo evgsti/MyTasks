@@ -80,8 +80,6 @@ final class StorageManager: ObservableObject {
         saveContext(context: viewContext)
     }
     
-    // MARK: - Private Methods
-
     // Сохранение изменений в Core Data
     private func saveContext(context: NSManagedObjectContext) {
         if context.hasChanges {
