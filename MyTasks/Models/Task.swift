@@ -9,6 +9,7 @@ import Foundation
 
 // Модель для задачи, которая будет использоваться в Core Data
 struct Task: Identifiable, Codable {
+    
     let id: UUID  // Используем UUID для уникальной идентификации
     let title: String // Заголовок задачи (оставим пустым, если в JSON нет)
     let description: String?  // Описание задачи (из JSON)

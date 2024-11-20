@@ -8,20 +8,14 @@ import SwiftUI
 
 struct TaskCreateView: View {
     
-    // MARK: - Public Properties
+    @ObservedObject var presenter: TaskListPresenter
     
-    @ObservedObject var viewModel: TaskListViewViewModel
-
-    // MARK: - Private Properties
-
     @Environment(\.dismiss) private var dismiss
     
     @FocusState private var isTextFieldFocused: Bool
     
     @State private var newTaskTitle = ""
     @State private var newTaskDescription = ""
-    
-    // MARK: - Body
     
     var body: some View {
         NavigationView {
@@ -30,12 +24,11 @@ struct TaskCreateView: View {
                     TextField("Название", text: $newTaskTitle, axis: .vertical)
                         .focused($isTextFieldFocused)
                     TextField("Описание", text: $newTaskDescription, axis: .vertical)
-                        .focused($isTextFieldFocused)
                 }
             }
             .navigationTitle("Новая задача")
-            .onTapGesture {
-                isTextFieldFocused.toggle()
+            .onAppear {
+                isTextFieldFocused = true
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -43,7 +36,7 @@ struct TaskCreateView: View {
                         withAnimation {
                             let title = newTaskTitle.isEmpty ? "Без названия" : newTaskTitle
                             let description = newTaskDescription.isEmpty ? "Без описания" : newTaskDescription
-                            viewModel.createNewTask(title: title, description: description)
+                            presenter.createTask(title: title, description: description)
                         }
                         dismiss()
                     }

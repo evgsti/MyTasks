@@ -7,25 +7,32 @@
 
 import Foundation
 
-final class TaskRowViewModel: ObservableObject {
-    
-    // MARK: - Public Properties
-    
-    private let storageManager = StorageManager.shared
-
-    // MARK: - Public Methods
-
-    func formattedDateString(from date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/yy"
-        return dateFormatter.string(from: date)
+final class TaskRowViewModel {
+    let task: MyTaskItems
+        
+    init(task: MyTaskItems) {
+        self.task = task
     }
     
-    func updateTask(task: MyTaskItems, description: String) {
-        storageManager.update(
-            task: task,
-            newDescription: description,
-            newCreatedAt: Date()
-        )
+    var title: String {
+        task.title ?? "No Title"
+    }
+    
+    var descriptionText: String {
+        task.descriptionText ?? "No description"
+    }
+    
+    var createdAt: Date {
+        task.createdAt ?? Date()
+    }
+    
+    var isCompleted: Bool {
+        task.isCompleted
+    }
+        
+    func formattedDateString() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yy"
+        return dateFormatter.string(from: createdAt)
     }
 }

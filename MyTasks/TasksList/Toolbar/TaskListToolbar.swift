@@ -8,20 +8,13 @@
 import SwiftUI
 
 struct TaskToolbarView: View {
-    
-    // MARK: - Public Properties
-    
+        
+    @ObservedObject var viewModel: TaskListToolbarViewModel
     let createTask: () -> Void
-
-    // MARK: - Private Properties
-
-    private let viewModel = TaskListViewViewModel()
     
-    // MARK: - Body
-
     var body: some View {
         ZStack {
-            Text("\(viewModel.tasks.count) \(viewModel.getTaskCountText(count: viewModel.tasks.count))")
+            Text("\(viewModel.tasksCount) \(viewModel.getTaskCountText())")
                 .font(.subheadline)
             HStack {
                 Spacer()

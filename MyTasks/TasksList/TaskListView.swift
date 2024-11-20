@@ -9,93 +9,105 @@ import SwiftUI
 
 struct TaskListView: View {
     
-    // MARK: - Private Properties
-
-    @StateObject private var viewModel = TaskListViewViewModel()
-    
-    @State private var selectedTask: MyTaskItems?
+    @Environment(\.managedObjectContext) private var viewContext
+        
     @State private var showCreateTaskView = false
-    @State private var showTaskUpdateView = false
     @State private var showAlert = false
     
-    // MARK: - Body
+    @ObservedObject var presenter: TaskListPresenter
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.filteredTasks, id: \.id) { task in
-                    NavigationLink(destination: TaskListDetailsView(task: task)) {
-                        TaskRowView(
-                            task: task,
-                            action: {
-                                viewModel.toggleTaskCompletion(task: task)
+                ForEach(presenter.filteredTasks, id: \.id) { task in
+                    TaskRowView(
+                        viewModel: TaskRowViewModel(
+                            task: task
+                        ),
+                        link: TaskListDetailsView(
+                            presenter: TaskListDetailsPresenter(
+                                task: task,
+                                interactor: TaskListDetailsInteractor(
+                                    storageManager: StorageManager()
+                                )
+                            ),
+                            onSave: {
+                                presenter.fetchTasks()
+                            }
+                        ),
+                        action: {
+                            presenter.toggleTaskCompletion(task: task)
+                        })
+                    .contextMenu {
+                        TaskContextMenuView(
+                            editTask: {
+                                
+                            },
+                            shareTask: {
+                                // Логика для шаринга задачи
+                            },
+                            deleteTask: {
+                                withAnimation {
+                                    presenter.deleteTask(task: task)
+                                }
                             }
                         )
-                        .contextMenu {
-                            TaskContextMenuView(
-                                editTask: {
-                                    selectedTask = task
-                                    showTaskUpdateView.toggle()
-                                },
-                                shareTask: {
-                                    // Логика для шаринга задачи
-                                },
-                                deleteTask: {
-                                    withAnimation {
-                                        viewModel.deleteTask(task)
-                                    }
-                                }
-                            )
-                        } preview: {
-                            TaskPreviewView(task: task)
-                        }
+                    } preview: {
+                        TaskRowPreviewView(viewModel: TaskRowViewModel(task: task))
                     }
-                    .listSectionSeparator(.hidden, edges: .top)
                 }
                 .onDelete { indexSet in
                     if let index = indexSet.first {
-                        let taskToDelete = viewModel.filteredTasks[index]
+                        let taskToDelete = presenter.filteredTasks[index]
                         withAnimation {
-                            viewModel.deleteTask(taskToDelete)
+                            presenter.deleteTask(task: taskToDelete)
                         }
                     }
                 }
+                .listSectionSeparator(.hidden, edges: .top)
             }
-            .sheet(isPresented: $showCreateTaskView) {
-                TaskCreateView(viewModel: viewModel)
-                    .presentationDetents([.medium, .large])
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    TaskToolbarView(
+                        viewModel: TaskListToolbarViewModel(
+                            tasks: presenter.filteredTasks,
+                            disableStatus: presenter.disableStatus
+                        ),
+                        createTask: {
+                            showCreateTaskView.toggle()
+                        }
+                    )
+                }
             }
-            .onAppear {
-                viewModel.fetchTasks()
-            }
-            .searchable(text: $viewModel.searchText, prompt: "Search")
-            .disabled(viewModel.disableStatus)
+            .searchable(text: $presenter.searchText, prompt: "Search")
+            .disabled(presenter.disableStatus)
             .navigationTitle("Задачи")
             .listStyle(.plain)
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    TaskToolbarView(createTask: {
-                        showCreateTaskView.toggle()
-                    })
-                }
+            
+        }
+        .onAppear {
+            presenter.fetchTasks()
+        }
+        .overlay {
+            if presenter.isLoading {
+                ProgressView("Загрузка...")
+                    .progressViewStyle(CircularProgressViewStyle())
             }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView("Загрузка...")
-                        .progressViewStyle(CircularProgressViewStyle())
-                }
-            }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Ошибка"),
-                    message: Text(viewModel.errorMessage ?? "Произошла неизвестная ошибка"),
-                    dismissButton: .default(Text("ОК"))
-                )
-            }
-            .onReceive(viewModel.$errorMessage) { error in
-                if error != nil {
-                    showAlert = true
-                }
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Ошибка"),
+                message: Text(presenter.errorMessage ?? "Произошла неизвестная ошибка"),
+                dismissButton: .default(Text("ОК"))
+            )
+        }
+        .sheet(isPresented: $showCreateTaskView) {
+            TaskCreateView(presenter: presenter)
+                .presentationDetents([.medium, .large])
+        }
+        .onReceive(presenter.$errorMessage) { error in
+            if error != nil {
+                showAlert = true
             }
         }
         .tint(Color("TintColor"))

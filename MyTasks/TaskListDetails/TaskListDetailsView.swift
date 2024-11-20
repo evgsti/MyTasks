@@ -9,71 +9,49 @@ import SwiftUI
 
 struct TaskListDetailsView: View {
     
-    // MARK: - Public Properties
-
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
     
-    let task: MyTaskItems
+    @ObservedObject var presenter: TaskListDetailsPresenter
     
-    // MARK: - Private Properties
-
-    @State private var newTaskDescription: String
-    @State private var debounceWorkItem: DispatchWorkItem?
+    @State private var editedDescription: String = ""
     
-    private let viewModel = TaskRowViewModel()
-    
-    // MARK: - Initializer
-    
-    init(task: MyTaskItems) {
-        self.task = task
-        _newTaskDescription = State(initialValue: task.descriptionText ?? "")
-    }
-    
-    // MARK: - Body
+    var onSave: (() -> Void)?
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(viewModel.formattedDateString(from: task.createdAt ?? Date()))
-                .font(.subheadline)
+            Text(presenter.createdAt)
+                .font(.system(size: 12))
                 .foregroundStyle(.secondary)
-                .padding(.bottom, 15)
-            
-            TextEditor(text: $newTaskDescription)
-                .font(.body)
+            TextEditor(text: $editedDescription)
+                .font(.system(size: 16))
                 .frame(maxWidth: .infinity)
                 .autocorrectionDisabled(true)
-                .onChange(of: newTaskDescription) {
-                    debounceUpdateTask()
+                .onChange(of: editedDescription) {
+                    presenter.debounceUpdateDescription(description: editedDescription, context: viewContext)
                 }
-            
+                .onAppear {
+                    editedDescription = presenter.description
+                }
             Spacer()
         }
-        .navigationBarTitle(task.title ?? "Без названия")
+        .navigationBarTitle(presenter.title)
         .navigationBarBackButtonHidden(true)
+        .onDisappear {
+            presenter.updateDescription(description: editedDescription, context: viewContext)
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: handleBackButtonTap) {
+                Button(action: {
+                    dismiss()
+                    onSave?()
+                    presenter.updateDescription(description: editedDescription, context: viewContext)
+                }) {
                     Image(systemName: "chevron.backward")
                     Text("Назад")
                 }
             }
         }
         .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
-    }
-    
-    // MARK: - Private Methods
-    
-    private func debounceUpdateTask() {
-        debounceWorkItem?.cancel()
-        let workItem = DispatchWorkItem {
-            viewModel.updateTask(task: task, description: newTaskDescription)
-        }
-        debounceWorkItem = workItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
-    }
-    
-    private func handleBackButtonTap() {
-        presentationMode.wrappedValue.dismiss()
-        viewModel.updateTask(task: task, description: newTaskDescription)
     }
 }

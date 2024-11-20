@@ -12,7 +12,8 @@ import CoreData
 final class TaskTests: XCTestCase {
 
     private var persistentContainer: NSPersistentContainer!
-    
+    private var storageManager: StorageManager!
+
     override func setUp() {
         super.setUp()
         
@@ -28,24 +29,24 @@ final class TaskTests: XCTestCase {
             }
             return container
         }()
+        
+        // Инициализируем StorageManager с тестовым контейнером
+        storageManager = StorageManager(container: persistentContainer)
     }
     
     override func tearDown() {
         persistentContainer = nil
+        storageManager = nil
         super.tearDown()
     }
     
     // Вспомогательная функция для создания тестовых задач
-    private func createTestTask(storageManager: StorageManager, title: String = "Тестовая задача", description: String = "Описание тестовой задачи", isCompleted: Bool = false) -> MyTaskItems {
+    private func createTestTask(title: String = "Тестовая задача", description: String = "Описание тестовой задачи", isCompleted: Bool = false) -> MyTaskItems? {
         let testID = UUID()
-        storageManager.create(
-            id: testID,
-            title: title,
-            description: description,
-            isCompleted: isCompleted,
-            createdAt: Date()
-        )
-        return storageManager.tasks.first { $0.id == testID }!
+        storageManager.create(id: testID, title: title, description: description, isCompleted: isCompleted, createdAt: Date())
+        
+        // Возвращаем задачу, если она была найдена
+        return storageManager.fetchTasks().first { $0.id == testID }
     }
 
     func testFetchDataFromNetwork() {
@@ -89,70 +90,59 @@ final class TaskTests: XCTestCase {
     }
 
     func testSaveDataToCoreData() {
-        // Инициализируем StorageManager с тестовым контейнером
-        let storageManager = StorageManager(container: persistentContainer)
-        
         // Создаем и сохраняем тестовую задачу
-        let testTask = createTestTask(storageManager: storageManager)
+        guard let testTask = createTestTask() else {
+            XCTFail("Задача не была сохранена в Core Data")
+            return
+        }
         
         // Проверяем, что задача добавлена в Core Data
-        storageManager.fetchTasks()
-        XCTAssertEqual(storageManager.tasks.count, 1, "Количество задач должно быть равно 1")
+        XCTAssertEqual(storageManager.fetchTasks().count, 1, "Количество задач должно быть равно 1")
         
         // Проверяем свойства задачи
         XCTAssertEqual(testTask.title, "Тестовая задача")
         XCTAssertEqual(testTask.descriptionText, "Описание тестовой задачи")
     }
-    
+
     func testUpdateTaskInCoreData() {
-        // Инициализируем StorageManager с тестовым контейнером
-        let storageManager = StorageManager(container: persistentContainer)
-        
         // Создаем и сохраняем тестовую задачу
-        _ = createTestTask(storageManager: storageManager)
-        
-        // Проверяем, что задача добавлена
-        storageManager.fetchTasks()
-        XCTAssertEqual(storageManager.tasks.count, 1, "Количество задач должно быть равно 1")
-        
-        // Получаем добавленную задачу
-        guard let taskToUpdate = storageManager.tasks.first else {
-            XCTFail("Не удалось найти задачу для обновления")
+        guard let taskToUpdate = createTestTask() else {
+            XCTFail("Задача не была сохранена в Core Data")
             return
         }
         
-        // Обновляем задачу
-        let newTitle = "Обновленная задача"
-        let newDescription = "Обновленное описание задачи"
-        let newCreatedAt = Date()
+        // Проверяем, что задача добавлена
+        XCTAssertEqual(storageManager.fetchTasks().count, 1, "Количество задач должно быть равно 1")
         
-        storageManager.update(task: taskToUpdate, newTitle: newTitle, newDescription: newDescription, newCreatedAt: newCreatedAt)
+        // Обновляем задачу
+        let newDescription = "Обновленное описание задачи"
+        let context = persistentContainer.viewContext
+        
+        storageManager.update(task: taskToUpdate, newDescription: newDescription, context: context)
         
         // Проверяем, что задача обновлена
-        storageManager.fetchTasks()
+        guard let updatedTask = storageManager.fetchTasks().first else {
+            XCTFail("Задача не была обновлена")
+            return
+        }
         
-        let updatedTask = storageManager.tasks.first
-        XCTAssertEqual(updatedTask?.title, newTitle, "Название задачи не обновилось")
-        XCTAssertEqual(updatedTask?.descriptionText, newDescription, "Описание задачи не обновилось")
-        XCTAssertEqual(updatedTask?.createdAt, newCreatedAt, "Дата создания задачи не обновилась")
+        XCTAssertEqual(updatedTask.descriptionText, newDescription, "Описание задачи не обновилось")
     }
-
+    
     func testDeleteTaskFromCoreData() {
-        // Инициализируем StorageManager с тестовым контейнером
-        let storageManager = StorageManager(container: persistentContainer)
-        
         // Создаем и сохраняем тестовую задачу
-        let testTask = createTestTask(storageManager: storageManager)
+        guard let testTask = createTestTask() else {
+            XCTFail("Задача не была сохранена в Core Data")
+            return
+        }
         
         // Проверяем, что задача добавлена
-        storageManager.fetchTasks()
-        XCTAssertEqual(storageManager.tasks.count, 1, "Количество задач должно быть равно 1")
+        XCTAssertEqual(storageManager.fetchTasks().count, 1, "Количество задач должно быть равно 1")
         
         // Удаляем задачу
         storageManager.delete(task: testTask)
         
         // Проверяем, что задача была удалена
-        storageManager.fetchTasks()
-        XCTAssertEqual(storageManager.tasks.count, 0, "После удаления задачи количество должно быть равно 0")
+        XCTAssertEqual(storageManager.fetchTasks().count, 0, "После удаления задачи количество должно быть равно 0")
     }
 }

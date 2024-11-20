@@ -9,23 +9,16 @@ import CoreData
 
 final class StorageManager: ObservableObject {
     
-    // MARK: - Public Properties
-
     static let shared = StorageManager()
     
-    @Published var tasks: [MyTaskItems] = []
-    
-    // MARK: - Private Properties
+    var tasks: [MyTaskItems] = []
     
     private let persistentContainer: NSPersistentContainer
-    private let viewContext: NSManagedObjectContext
+    let viewContext: NSManagedObjectContext
     
-    // MARK: - Initializer
-
     init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
         self.persistentContainer = container
         self.viewContext = persistentContainer.viewContext
-        fetchTasks()  // Загружаем задачи при инициализации
     }
     
     // Статический метод для получения стандартного контейнера
@@ -38,11 +31,9 @@ final class StorageManager: ObservableObject {
         }
         return container
     }
-    
-    // MARK: - Public Methods
 
     // Загрузка всех задач из Core Data
-    func fetchTasks() {
+    func fetchTasks() -> [MyTaskItems] {
         let fetchRequest: NSFetchRequest<MyTaskItems> = MyTaskItems.fetchRequest()
         let sortDescriptor = NSSortDescriptor(key: "createdAt", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
@@ -53,7 +44,9 @@ final class StorageManager: ObservableObject {
             print("Error fetching tasks: \(error)")
             tasks = []
         }
+        return tasks
     }
+    
     // MARK: - CRUD
     
     // Сохранение задачи в Core Data
@@ -65,41 +58,33 @@ final class StorageManager: ObservableObject {
         taskEntity.isCompleted = isCompleted
         taskEntity.createdAt = createdAt
         
-        saveContext()
-        fetchTasks()  // Обновляем список задач
+        saveContext(context: viewContext)
     }
     
-    func update(task: MyTaskItems, newDescription: String, newCreatedAt: Date) {
+    func update(task: MyTaskItems, newDescription: String, context: NSManagedObjectContext) {
         task.descriptionText = newDescription
-        task.createdAt = newCreatedAt
-        
-        saveContext()
-        fetchTasks()
+        task.createdAt = Date()
+        saveContext(context: context)
     }
     
     // Удаление задачи
     func delete(task: MyTaskItems) {
         viewContext.delete(task)
-        
-        saveContext()
-        fetchTasks()
+        saveContext(context: viewContext)
     }
     
     // Изменение статуса выполнения задачи
     func complitionToggle(task: MyTaskItems) {
         task.isCompleted.toggle()
         
-        saveContext()
-        fetchTasks()
+        saveContext(context: viewContext)
     }
     
-    // MARK: - Private Methods
-
     // Сохранение изменений в Core Data
-    private func saveContext() {
-        if viewContext.hasChanges {
+    private func saveContext(context: NSManagedObjectContext) {
+        if context.hasChanges {
             do {
-                try viewContext.save()
+                try context.save()
             } catch {
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
