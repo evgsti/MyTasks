@@ -11,7 +11,7 @@ struct TaskContextMenuView: View {
     
     // MARK: - Public Properties
 
-    let updateTask: () -> Void
+    let editTask: () -> Void
     let shareTask: () -> Void
     let deleteTask: () -> Void
     
@@ -19,7 +19,7 @@ struct TaskContextMenuView: View {
 
     var body: some View {
         Button {
-            updateTask()
+            editTask()
         } label: {
             Label("Изменить", systemImage: "square.and.pencil")
         }

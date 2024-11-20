@@ -9,13 +9,8 @@ import SwiftUI
 
 struct TaskListView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
-    // MARK: - Private Properties
-    
-    @State private var selectedTask: MyTaskItems?
-    
+        
     @State private var showCreateTaskView = false
-    @State private var showTaskUpdateView = false
     @State private var showAlert = false
     
     @ObservedObject var presenter: TaskListPresenter
@@ -46,9 +41,8 @@ struct TaskListView: View {
                         })
                     .contextMenu {
                         TaskContextMenuView(
-                            updateTask: {
-                                selectedTask = task
-                                showTaskUpdateView.toggle()
+                            editTask: {
+                                
                             },
                             shareTask: {
                                 // Логика для шаринга задачи
