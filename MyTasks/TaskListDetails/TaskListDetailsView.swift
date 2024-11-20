@@ -9,10 +9,14 @@ import SwiftUI
 
 struct TaskListDetailsView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
     
     @ObservedObject var presenter: TaskListDetailsPresenter
     
     @State private var editedDescription: String = ""
+    @State private var debounceWorkItem: DispatchWorkItem?
+
+    var onSave: (() -> Void)?
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -23,18 +27,20 @@ struct TaskListDetailsView: View {
             
             // TextEditor для редактирования описания
             TextEditor(text: $editedDescription)
-                .padding()
-                .frame(height: 200)
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(8)
+                .font(.body)
+                .frame(maxWidth: .infinity)
+                .autocorrectionDisabled(true)
+                .onChange(of: editedDescription) {
+                    debounceUpdateTask()
+                }
                 .onAppear {
-                    // При загрузке экрана устанавливаем текущее описание задачи
                     editedDescription = presenter.description
                 }
             
             Spacer()
         }
         .navigationBarTitle(presenter.title)
+        .navigationBarBackButtonHidden(true)
         .onDisappear {
             presenter.updateDescription(description: editedDescription, context: viewContext)
             print("Сохранили описание: \(editedDescription)")
@@ -42,8 +48,8 @@ struct TaskListDetailsView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    // Сохраняем изменения при нажатии на кнопку назад
-                    presenter.updateDescription(description: editedDescription, context: viewContext)
+                    dismiss()
+                    onSave?()
                     print(editedDescription)
                 }) {
                     Image(systemName: "chevron.backward")
@@ -53,4 +59,13 @@ struct TaskListDetailsView: View {
         }
         .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
     }
+    
+    private func debounceUpdateTask() {
+            debounceWorkItem?.cancel()
+            let workItem = DispatchWorkItem {
+                presenter.updateDescription(description: editedDescription, context: viewContext)
+            }
+            debounceWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
+        }
 }

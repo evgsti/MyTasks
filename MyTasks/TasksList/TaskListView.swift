@@ -26,7 +26,42 @@ struct TaskListView: View {
         NavigationView {
             List {
                 ForEach(presenter.filteredTasks, id: \.id) { task in
-                    taskRow(task: task)
+                    TaskRowView(
+                        viewModel: TaskRowViewModel(
+                            task: task
+                        ),
+                        link: TaskListDetailsView(
+                            presenter: TaskListDetailsPresenter(
+                                task: task,
+                                interactor: TaskListDetailsInteractor(
+                                    storageManager: StorageManager()
+                                )
+                            ),
+                            onSave: {
+                                presenter.fetchTasks()
+                            }
+                        ),
+                        action: {
+                            presenter.toggleTaskCompletion(task: task)
+                        })
+                    .contextMenu {
+                        TaskContextMenuView(
+                            updateTask: {
+                                selectedTask = task
+                                showTaskUpdateView.toggle()
+                            },
+                            shareTask: {
+                                // Логика для шаринга задачи
+                            },
+                            deleteTask: {
+                                withAnimation {
+                                    presenter.deleteTask(task: task)
+                                }
+                            }
+                        )
+                    } preview: {
+                        TaskRowPreviewView(viewModel: TaskRowViewModel(task: task))
+                    }
                 }
                 .onDelete { indexSet in
                     if let index = indexSet.first {
@@ -84,41 +119,5 @@ struct TaskListView: View {
             }
         }
         .tint(Color("TintColor"))
-    }
-    
-    private func taskRow(task: MyTaskItems) -> some View {
-        TaskRowView(
-            viewModel: TaskRowViewModel(
-                task: task
-            ),
-            link: TaskListDetailsView(
-                presenter: TaskListDetailsPresenter(
-                    task: task,
-                    interactor: TaskListDetailsInteractor(
-                        storageManager: StorageManager()
-                    )
-                )
-            ),
-            action: {
-                presenter.toggleTaskCompletion(task: task)
-            })
-        .contextMenu {
-            TaskContextMenuView(
-                updateTask: {
-                    selectedTask = task
-                    showTaskUpdateView.toggle()
-                },
-                shareTask: {
-                    // Логика для шаринга задачи
-                },
-                deleteTask: {
-                    withAnimation {
-                        presenter.deleteTask(task: task)
-                    }
-                }
-            )
-        } preview: {
-            TaskRowPreviewView(viewModel: TaskRowViewModel(task: task))
-        }
     }
 }
