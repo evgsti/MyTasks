@@ -23,7 +23,6 @@ struct TaskListDetailsView: View {
             Text(presenter.createdAt)
                 .font(.system(size: 12))
                 .foregroundStyle(.secondary)
-                .padding(.bottom, 16)
             TextEditor(text: $editedDescription)
                 .font(.system(size: 16))
                 .frame(maxWidth: .infinity)
@@ -34,7 +33,6 @@ struct TaskListDetailsView: View {
                 .onAppear {
                     editedDescription = presenter.description
                 }
-            
             Spacer()
         }
         .navigationBarTitle(presenter.title)
