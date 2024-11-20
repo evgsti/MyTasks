@@ -10,22 +10,14 @@ import Network
 
 final class NetworkManager {
     
-    // MARK: - Public Properties
-    
     static let shared = NetworkManager()
     
-    // MARK: - Private Properties
-
     private let api = "https://dummyjson.com/todos"
     // Используем NWPathMonitor для проверки сети
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitorQueue")
     
-    // MARK: - Initializers
-
     private init() {}
-
-    // MARK: - Public Methods
     
     func fetchData(completion: @escaping ([Task]?, Error?) -> Void) {
         // Проверка подключения перед выполнением запроса
@@ -79,8 +71,6 @@ final class NetworkManager {
             }.resume()
         }
     }
-    
-    // MARK: - Private Methods
     
     // Проверка состояния сети
     private func isConnectedToNetwork(completion: @escaping (Bool) -> Void) {

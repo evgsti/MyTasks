@@ -9,21 +9,15 @@ import SwiftUI
 
 struct TaskRowView<Destination: View>: View {
     
-    // MARK: - Properties
-    
     private let viewModel: TaskRowViewModel
     var link: Destination
     var action: () -> Void
-    
-    // MARK: - Initialization
     
     init(viewModel: TaskRowViewModel, link: Destination, action: @escaping () -> Void) {
         self.viewModel = viewModel
         self.link = link
         self.action = action
     }
-    
-    // MARK: - Body
     
     var body: some View {
         ZStack(alignment: .leading) {

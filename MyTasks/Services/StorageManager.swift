@@ -9,19 +9,13 @@ import CoreData
 
 final class StorageManager: ObservableObject {
     
-    // MARK: - Public Properties
-
     static let shared = StorageManager()
     
     var tasks: [MyTaskItems] = []
     
-    // MARK: - Private Properties
-    
     private let persistentContainer: NSPersistentContainer
     let viewContext: NSManagedObjectContext
     
-    // MARK: - Initializer
-
     init(container: NSPersistentContainer = StorageManager.defaultPersistentContainer()) {
         self.persistentContainer = container
         self.viewContext = persistentContainer.viewContext
@@ -37,8 +31,6 @@ final class StorageManager: ObservableObject {
         }
         return container
     }
-    
-    // MARK: - Public Methods
 
     // Загрузка всех задач из Core Data
     func fetchTasks() -> [MyTaskItems] {

@@ -8,7 +8,6 @@
 import Foundation
 
 final class TaskRowViewModel {
-        
     let task: MyTaskItems
         
     init(task: MyTaskItems) {

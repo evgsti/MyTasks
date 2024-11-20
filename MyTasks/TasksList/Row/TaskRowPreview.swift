@@ -8,18 +8,12 @@
 import SwiftUI
 
 struct TaskRowPreviewView: View {
-    
-    // MARK: - Properties
 
     private let viewModel: TaskRowViewModel
-    
-    // MARK: - Initialization
     
     init(viewModel: TaskRowViewModel) {
         self.viewModel = viewModel
     }
-    
-    // MARK: - Body
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {

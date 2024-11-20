@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct TaskListView: View {
+    
     @Environment(\.managedObjectContext) private var viewContext
         
     @State private var showCreateTaskView = false
     @State private var showAlert = false
     
     @ObservedObject var presenter: TaskListPresenter
-    
-    // MARK: - Body
     
     var body: some View {
         NavigationView {

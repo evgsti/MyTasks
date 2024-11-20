@@ -8,11 +8,7 @@ import SwiftUI
 
 struct TaskCreateView: View {
     
-    // MARK: - Public Properties
-    
     @ObservedObject var presenter: TaskListPresenter
-    
-    // MARK: - Private Properties
     
     @Environment(\.dismiss) private var dismiss
     
@@ -20,8 +16,6 @@ struct TaskCreateView: View {
     
     @State private var newTaskTitle = ""
     @State private var newTaskDescription = ""
-    
-    // MARK: - Body
     
     var body: some View {
         NavigationView {

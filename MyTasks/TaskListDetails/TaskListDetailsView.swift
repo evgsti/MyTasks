@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TaskListDetailsView: View {
+    
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     
