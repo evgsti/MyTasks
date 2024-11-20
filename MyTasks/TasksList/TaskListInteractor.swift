@@ -25,11 +25,9 @@ final class TaskListInteractor: TaskListInteractorProtocol {
     private let networkManager = NetworkManager.shared
     
     func fetchTasks() {
-        print("интерактор запросил задачи у менеджера")
         let hasFetchedDataBefore = UserDefaults.standard.bool(forKey: "hasFetchedDataBefore")
         
         if !hasFetchedDataBefore {
-            print("задачи ранее не были загружены")
             isLoading.toggle()
             disableStatus.toggle()
             
@@ -59,7 +57,6 @@ final class TaskListInteractor: TaskListInteractorProtocol {
                 }
             }
         } else {
-            print("задачи ранее были загружены")
             tasks = storageManager.fetchTasks()
         }
     }
@@ -76,7 +73,6 @@ final class TaskListInteractor: TaskListInteractorProtocol {
         }
 
     func deleteTask(task: MyTaskItems) {
-        print("интерактор запросил удаление задачи у менеджера")
         storageManager.delete(task: task)
         fetchTasks()
     }

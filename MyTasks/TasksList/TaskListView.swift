@@ -87,7 +87,6 @@ struct TaskListView: View {
             
         }
         .onAppear {
-            print("вью запросило задачи у презентера")
             presenter.fetchTasks()
         }
         .overlay {

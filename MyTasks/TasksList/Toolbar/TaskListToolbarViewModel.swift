@@ -29,7 +29,7 @@ final class TaskListToolbarViewModel: ObservableObject {
         let lastTwoDigits = tasksCount % 100
         
         if (lastTwoDigits >= 11 && lastTwoDigits <= 14) || lastDigit == 0 || lastDigit >= 5 {
-            return "задач"
+            return "Задач"
         }
         return lastDigit == 1 ? "Задача" : "Задачи"
     }

@@ -44,7 +44,6 @@ class TaskListDetailsPresenter: TaskListDetailsPresenterProtocol, ObservableObje
     }
 
     func updateDescription(description: String, context: NSManagedObjectContext) {
-        print("презентер: измененное описание из вью", description)
         interactor.updateDescription(task: task, description: description, context: context)
     }
     

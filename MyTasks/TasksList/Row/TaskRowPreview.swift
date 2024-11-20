@@ -22,19 +22,20 @@ struct TaskRowPreviewView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(viewModel.title)
-                .font(.headline)
+                .font(.system(size: 16))
                 .lineLimit(4)
                 .strikethrough(viewModel.isCompleted)
             Text(viewModel.descriptionText)
+                .font(.system(size: 12))
                 .lineLimit(10)
-                .font(.subheadline)
             Text(viewModel.formattedDateString())
-                .font(.subheadline)
+                .font(.system(size: 12))
                 .foregroundStyle(.gray)
         }
-        .padding(20)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .frame(width: UIScreen.main.bounds.size.width - 40, alignment: .leading)
     }
 }

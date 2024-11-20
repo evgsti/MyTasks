@@ -54,24 +54,20 @@ final class TaskListPresenter: TaskListPresenterProtocol, ObservableObject {
     }
     
     func fetchTasks() {
-        print("презентер запросил задачи у интерактора")
         interactor.fetchTasks()
     }
     
     func createTask(title: String, description: String) {
-        print("презентер запросил создание задачи у интерактора")
         interactor.createTask(title: title, description: description)
         fetchTasks()
     }
     
     func deleteTask(task: MyTaskItems) {
-        print("презентер запросил удаление задачи у интерактора")
         interactor.deleteTask(task: task)
         fetchTasks()
     }
     
     func toggleTaskCompletion(task: MyTaskItems) {
-        print("презентер запросил удаление задачи у интерактора")
         interactor.toggleTaskCompletion(task: task)
         fetchTasks()
     }

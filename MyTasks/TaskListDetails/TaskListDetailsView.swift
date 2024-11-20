@@ -20,11 +20,11 @@ struct TaskListDetailsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(presenter.createdAt)
-                .font(.subheadline)
+                .font(.system(size: 12))
                 .foregroundStyle(.secondary)
-                .padding(.bottom, 15)
+                .padding(.bottom, 16)
             TextEditor(text: $editedDescription)
-                .font(.body)
+                .font(.system(size: 16))
                 .frame(maxWidth: .infinity)
                 .autocorrectionDisabled(true)
                 .onChange(of: editedDescription) {
@@ -40,7 +40,6 @@ struct TaskListDetailsView: View {
         .navigationBarBackButtonHidden(true)
         .onDisappear {
             presenter.updateDescription(description: editedDescription, context: viewContext)
-            print("Сохранили описание: \(editedDescription)")
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -48,7 +47,6 @@ struct TaskListDetailsView: View {
                     dismiss()
                     onSave?()
                     presenter.updateDescription(description: editedDescription, context: viewContext)
-                    print(editedDescription)
                 }) {
                     Image(systemName: "chevron.backward")
                     Text("Назад")

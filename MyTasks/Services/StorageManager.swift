@@ -48,7 +48,6 @@ final class StorageManager: ObservableObject {
         
         do {
             tasks = try viewContext.fetch(fetchRequest)
-            print("менеджер загрузил задачи из Core Data")
         } catch let error {
             print("Error fetching tasks: \(error)")
             tasks = []
@@ -68,23 +67,16 @@ final class StorageManager: ObservableObject {
         taskEntity.createdAt = createdAt
         
         saveContext(context: viewContext)
-        print("менеджер создал задачу \(title)")
-        print(viewContext)
     }
     
     func update(task: MyTaskItems, newDescription: String, context: NSManagedObjectContext) {
-        print("это новое описание", newDescription)
         task.descriptionText = newDescription
         task.createdAt = Date()
         saveContext(context: context)
-//        print("менеджер обновил задачу \(task.id!)")
-//        print("менеджер обновил задачу \(task.descriptionText!)")
-        
     }
     
     // Удаление задачи
     func delete(task: MyTaskItems) {
-        print("менеджер удалил задачу \(task.title!)")
         viewContext.delete(task)
         saveContext(context: viewContext)
     }
@@ -94,14 +86,12 @@ final class StorageManager: ObservableObject {
         task.isCompleted.toggle()
         
         saveContext(context: viewContext)
-        print("менеджер изменил статус выполнения задачи \(task.title!)")
     }
     
     // MARK: - Private Methods
 
     // Сохранение изменений в Core Data
     private func saveContext(context: NSManagedObjectContext) {
-        print(context)
         if context.hasChanges {
             do {
                 try context.save()

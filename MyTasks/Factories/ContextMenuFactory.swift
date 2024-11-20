@@ -21,17 +21,17 @@ struct TaskContextMenuView: View {
         Button {
             editTask()
         } label: {
-            Label("Изменить", systemImage: "square.and.pencil")
+            Label("Редактировать", image: "edit")
         }
         Button {
             shareTask()
         } label: {
-            Label("Поделиться", systemImage: "square.and.arrow.up")
+            Label("Поделиться", image: "share")
         }
         Button(role: .destructive) {
             deleteTask()
         } label: {
-            Label("Удалить", systemImage: "trash")
+            Label("Удалить", image: "trash")
         }
     }
 }

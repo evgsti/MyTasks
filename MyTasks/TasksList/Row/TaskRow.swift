@@ -31,23 +31,23 @@ struct TaskRowView<Destination: View>: View {
                 Button(action: {
                     action()
                 }, label: {
-                    Image(systemName: viewModel.isCompleted ? "checkmark.circle" : "circle")
+                    Image(viewModel.isCompleted ? "check" : "unCheck")
                         .resizable()
                         .frame(width: 24, height: 24)
                         .foregroundStyle(viewModel.isCompleted ? Color("TintColor") : .secondary)
                 })
                 .buttonStyle(PlainButtonStyle())
                 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(viewModel.title)
-                        .font(.headline)
+                        .font(.system(size: 16))
                         .lineLimit(2)
                         .strikethrough(viewModel.isCompleted)
                     Text(viewModel.descriptionText)
-                        .font(.subheadline)
+                        .font(.system(size: 12))
                         .lineLimit(2)
                     Text(viewModel.formattedDateString())
-                        .font(.subheadline)
+                        .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
                 .foregroundStyle(viewModel.isCompleted ? .secondary : .primary)
