@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import CoreData
 
 protocol TaskListDetailsInteractorProtocol {
-    func updateDescription(task: MyTaskItems, description: String)
+    func updateDescription(task: MyTaskItems, description: String, context: NSManagedObjectContext)
 }
 
 class TaskListDetailsInteractor: TaskListDetailsInteractorProtocol {
@@ -18,9 +19,7 @@ class TaskListDetailsInteractor: TaskListDetailsInteractorProtocol {
         self.storageManager = storageManager
     }
 
-    func updateDescription(task: MyTaskItems, description: String) {
-        print("Интерактор: измененное описание из презентера", description)
-        print(task.id)
-        storageManager.update(task: task, newDescription: description)
+    func updateDescription(task: MyTaskItems, description: String, context: NSManagedObjectContext) {
+        storageManager.update(task: task, newDescription: description, context: context)
     }
 }

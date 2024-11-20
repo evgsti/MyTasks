@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TaskListDetailsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     
     @ObservedObject var presenter: TaskListDetailsPresenter
     
@@ -34,11 +35,15 @@ struct TaskListDetailsView: View {
             Spacer()
         }
         .navigationBarTitle(presenter.title)
+        .onDisappear {
+            presenter.updateDescription(description: editedDescription, context: viewContext)
+            print("Сохранили описание: \(editedDescription)")
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     // Сохраняем изменения при нажатии на кнопку назад
-                    presenter.updateDescription(description: editedDescription)
+                    presenter.updateDescription(description: editedDescription, context: viewContext)
                     print(editedDescription)
                 }) {
                     Image(systemName: "chevron.backward")

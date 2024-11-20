@@ -6,12 +6,13 @@
 //
 
 import Foundation
+import CoreData
 
 protocol TaskListDetailsPresenterProtocol: AnyObject {
     var task: MyTaskItems { get }
     var title: String { get }
     var description: String { get }
-    func updateDescription(description: String)
+    func updateDescription(description: String, context: NSManagedObjectContext)
 }
 
 class TaskListDetailsPresenter: TaskListDetailsPresenterProtocol, ObservableObject {
@@ -42,10 +43,8 @@ class TaskListDetailsPresenter: TaskListDetailsPresenterProtocol, ObservableObje
         return dateFormatter.string(from: task.createdAt ?? Date())
     }
 
-    func updateDescription(description: String) {
+    func updateDescription(description: String, context: NSManagedObjectContext) {
         print("презентер: измененное описание из вью", description)
-        print(task.id)
-
-        interactor.updateDescription(task: task, description: description)
+        interactor.updateDescription(task: task, description: description, context: context)
     }
 }

@@ -18,7 +18,7 @@ final class StorageManager: ObservableObject {
     // MARK: - Private Properties
     
     private let persistentContainer: NSPersistentContainer
-    private let viewContext: NSManagedObjectContext
+    let viewContext: NSManagedObjectContext
     
     // MARK: - Initializer
 
@@ -67,41 +67,44 @@ final class StorageManager: ObservableObject {
         taskEntity.isCompleted = isCompleted
         taskEntity.createdAt = createdAt
         
-        saveContext()
+        saveContext(context: viewContext)
         print("менеджер создал задачу \(title)")
+        print(viewContext)
     }
     
-    func update(task: MyTaskItems, newDescription: String) {
+    func update(task: MyTaskItems, newDescription: String, context: NSManagedObjectContext) {
+        print("это новое описание", newDescription)
         task.descriptionText = newDescription
         task.createdAt = Date()
-
-        saveContext()
-        print("менеджер обновил задачу \(task.id!)")
-        print("менеджер обновил задачу \(task.descriptionText!)")
+        saveContext(context: context)
+//        print("менеджер обновил задачу \(task.id!)")
+//        print("менеджер обновил задачу \(task.descriptionText!)")
+        
     }
     
     // Удаление задачи
     func delete(task: MyTaskItems) {
         print("менеджер удалил задачу \(task.title!)")
         viewContext.delete(task)
-        saveContext()
+        saveContext(context: viewContext)
     }
     
     // Изменение статуса выполнения задачи
     func complitionToggle(task: MyTaskItems) {
         task.isCompleted.toggle()
         
-        saveContext()
+        saveContext(context: viewContext)
         print("менеджер изменил статус выполнения задачи \(task.title!)")
     }
     
     // MARK: - Private Methods
 
     // Сохранение изменений в Core Data
-    private func saveContext() {
-        if viewContext.hasChanges {
+    private func saveContext(context: NSManagedObjectContext) {
+        print(context)
+        if context.hasChanges {
             do {
-                try viewContext.save()
+                try context.save()
             } catch {
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
